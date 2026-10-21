@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="monetag" content="1301764d92b45fd1d4d2ae51184e7e8f">
+<meta name="monetag" content="c8194da8bbd3926d4e4cdf7e178c4af2">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1020">
@@ -9,6 +9,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Chakma&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+
+<!-- ============================================================
+  AD SCRIPTS (FALLBACK PLACE)
+  Normally you paste ad codes from admin.html > Settings > Ad networks.
+  If you ever want to hard-code a network script on the page itself,
+  paste it right here (inside <head>), e.g.:
+  <script src="https://example-ad-network.com/tag.js" data-zone="12345" async></script>
+============================================================ -->
+
 <style>
 :root{--bg:#0b1020;--card:#151b30;--card2:#1c2440;--line:#2a3354;--pri:#7c5cff;--pri2:#22d3ee;--txt:#e8ecff;--mut:#8f9ac0}
 *{box-sizing:border-box}
@@ -74,8 +83,28 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
       <label class="lbl" data-i18n="refCode"></label><input class="inp" id="rRef" maxlength="12" placeholder="XXXXXXXX" style="text-transform:uppercase">
       <button class="btn btn-pri w-full mt-4" type="submit" data-i18n="createAccount"></button>
     </form>
+
+    <div class="flex items-center gap-3 my-4 text-xs mut"><div class="flex-1" style="height:1px;background:var(--line)"></div><span data-i18n="or"></span><div class="flex-1" style="height:1px;background:var(--line)"></div></div>
+    <button type="button" class="btn btn-ghost w-full" data-act="google">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+      <span data-i18n="google"></span>
+    </button>
+
     <p id="authErr" class="text-red-400 text-sm mt-3 hidden"></p>
     <button class="btn btn-ghost w-full mt-4 text-sm" data-act="lang"><span class="langName"></span></button>
+  </div>
+</div>
+
+<!-- ============ COMPLETE PROFILE (Google / profile missing) ============ -->
+<div id="complete" class="hidden min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md card p-6">
+    <h2 class="text-xl font-extrabold" data-i18n="completeTitle"></h2>
+    <p class="mut text-sm mt-1" id="cWho"></p>
+    <label class="lbl" data-i18n="country"></label><select class="inp" id="cCountry"></select>
+    <label class="lbl" data-i18n="refCode"></label><input class="inp" id="cRef" maxlength="12" placeholder="XXXXXXXX" style="text-transform:uppercase">
+    <button id="cBtn" class="btn btn-pri w-full mt-4" data-act="completeProfile" data-i18n="continue"></button>
+    <p id="cErr" class="text-red-400 text-sm mt-3 hidden"></p>
+    <button class="btn btn-ghost w-full mt-3" data-act="logout" data-i18n="cancel"></button>
   </div>
 </div>
 
@@ -185,7 +214,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
     <div class="text-right"><div class="text-xs mut" data-i18n="reward"></div><div id="vReward" class="font-bold"></div></div>
   </div>
   <p id="vNote" class="text-xs mut mt-2"></p>
-  <div id="vBanner" class="mt-3 card2 overflow-hidden" style="min-height:60px"></div>
+  <div id="vBanner" class="mt-3 card2 overflow-hidden hidden"></div>
 </div></div>
 
 <div id="mTask" class="modal hidden"><div>
@@ -213,6 +242,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
   <div id="wdBody"></div>
 </div></div>
 
+<!-- full screen interstitial (shown before video / mining start / claim) -->
 <div id="ad" class="hidden" style="position:fixed;inset:0;z-index:80;background:#05070f;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
   <div class="text-xs mut mb-2" data-i18n="adLabel"></div>
   <div id="adBox" class="w-full max-w-md card2 overflow-auto" style="min-height:260px;max-height:70vh"></div>
@@ -221,10 +251,10 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,query,where,onSnapshot,writeBatch,serverTimestamp,increment,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ====== 1) PASTE YOUR FIREBASE CONFIG HERE ====== */
+/* ====== Firebase config ====== */
 const firebaseConfig = {
   apiKey: "AIzaSyAggGgDK-qm9WhdOjLO1gT5tojgLK-x_IA",
   authDomain: "lmcoin-107f9.firebaseapp.com",
@@ -243,10 +273,9 @@ const flag=cc=>cc&&cc.length===2&&cc!=='XX'?String.fromCodePoint(...[...cc.toUpp
 const mmss=s=>{s=Math.max(0,Math.floor(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 const hms=s=>{s=Math.max(0,Math.floor(s));return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,'0')).join(':')};
 
-/* ====== i18n (English + Chakma) ======
-   Chakma labels for the 5 tabs are built in. Every other Chakma string can be added from
-   admin.html > Settings > Chakma translations (JSON {key:"text"}). Missing keys fall back to English. */
+/* ====== i18n (English + Chakma) ====== */
 const EN={tagline:'Watch, mine & complete tasks to earn LM Coin',login:'Login',register:'Register',email:'Email',password:'Password',name:'Name',country:'Country',refCode:'Referral code (optional)',createAccount:'Create account',signIn:'Sign in',forgot:'Forgot password?',logout:'Logout',
+or:'or',google:'Continue with Google',completeTitle:'Complete your profile',continue:'Continue',cancel:'Cancel',
 video:'Video',mine:'Mine',task:'Task',community:'Community',profile:'Profile',
 noVideos:'No videos yet',play:'Play',reward:'Reward',adLabel:'Advertisement',skipIn:'Skip in',skip:'Skip',watchTimer:'Watch timer',timerNote:'Timer runs only while the video is playing.',rewarded:'Reward added to your balance!',alreadyRewarded:'You already received the reward for this video.',
 miningTitle:'LM Coin mining',startMining:'Start mining',mining:'Mining…',claim:'Claim reward',rate:'Mining rate',minedTotal:'Total mined',idle:'Ready to start',running:'Mining in progress',ready:'Mining complete! Claim now',per:'per',hours:'hours',mineDone:'⛏️ Mining finished – claim your LM!',claimed:'Mining reward claimed!',
@@ -261,7 +290,7 @@ const CCP={video:'𑄞𑄨𑄓𑄨𑄃𑄱',mine:'𑄞𑄣',task:'𑄦𑄟𑄴',
 if(location.search.includes('keys=1')){document.body.innerHTML='<p style="padding:10px;font:14px sans-serif">Copy this JSON, translate the values into Chakma, and paste it in admin.html → Settings → Chakma translations.</p><textarea style="width:96%;height:80vh;margin:2%;font:13px monospace">'+JSON.stringify(EN,null,2)+'</textarea>';throw 0}
 
 let lang=localStorage.getItem('lm_lang')||'en';
-const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,bannerEverySec:60,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',links:{},ads:{interstitial:'',banner:''},i18nCcp:{},
+const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,bannerEverySec:60,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',links:{},adNets:[],i18nCcp:{},
 payments:{bkash:{name:'bKash',scope:'BD',enabled:true,minUSD:1,hint:'bKash number'},nagad:{name:'Nagad',scope:'BD',enabled:true,minUSD:1,hint:'Nagad number'},binance:{name:'Binance Pay',scope:'INTL',enabled:true,minUSD:5,hint:'Binance Pay ID'},usdt:{name:'USDT (TRC20/BEP20)',scope:'INTL',enabled:true,minUSD:5,hint:'Wallet address + network'},nsave:{name:'Nsave',scope:'INTL',enabled:true,minUSD:5,hint:'Nsave account'}}};
 let S=JSON.parse(JSON.stringify(DEF));
 const t=k=>lang==='ccp'?(S.i18nCcp?.[k]||CCP[k]||EN[k]||k):(EN[k]||k);
@@ -269,17 +298,53 @@ const t=k=>lang==='ccp'?(S.i18nCcp?.[k]||CCP[k]||EN[k]||k):(EN[k]||k);
 let me=null,uid=null,videos=[],tasks=[],reqs={},watched=new Set(),wds=[],subs=[],registering=false,tab='video',lastMine='';
 
 /* ====== helpers ====== */
-function toast(m){const e=$('#toast');e.textContent=m;e.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.add('hidden'),3200)}
-const friendly=x=>{const c=x?.code||'';return ({'auth/email-already-in-use':'Email already registered','auth/invalid-credential':'Wrong email or password','auth/invalid-email':'Invalid email','auth/weak-password':'Password must be at least 6 characters','auth/too-many-requests':'Too many attempts, try later','permission-denied':'Permission denied (device limit / rules)'})[c]||x?.message||String(x)};
-function injectHTML(el,html){el.innerHTML='';const tmp=document.createElement('div');tmp.innerHTML=html;[...tmp.childNodes].forEach(n=>{if(n.nodeName==='SCRIPT'){const s=document.createElement('script');[...n.attributes].forEach(a=>s.setAttribute(a.name,a.value));s.text=n.textContent;el.appendChild(s)}else el.appendChild(n)})}
+function toast(m){const e=$('#toast');e.textContent=m;e.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.add('hidden'),3500)}
+const friendly=x=>{const c=x?.code||'';return ({'auth/email-already-in-use':'Email already registered','auth/invalid-credential':'Wrong email or password','auth/invalid-email':'Invalid email','auth/weak-password':'Password must be at least 6 characters','auth/too-many-requests':'Too many attempts, try later','auth/unauthorized-domain':'This website domain is not authorized in Firebase (Authentication → Settings → Authorized domains)','auth/operation-not-allowed':'This sign-in method is not enabled in Firebase Console','auth/account-exists-with-different-credential':'This email is already registered with another method','auth/network-request-failed':'Network error, check your internet','permission-denied':'Permission denied (device limit / rules)'})[c]||x?.message||String(x)};
+/* injectHTML: puts html into el and re-creates <script> tags so they really execute */
+function injectHTML(el,html,keep){if(!keep)el.innerHTML='';const tmp=document.createElement('div');tmp.innerHTML=html;[...tmp.childNodes].forEach(n=>{if(n.nodeName==='SCRIPT'){const s=document.createElement('script');[...n.attributes].forEach(a=>s.setAttribute(a.name,a.value));s.text=n.textContent;el.appendChild(s)}else el.appendChild(n)})}
 const openM=id=>$('#'+id).classList.remove('hidden');
 function closeAll(){$$('.modal').forEach(m=>m.classList.add('hidden'))}
+
+/* ====== ADS (up to 5 networks, configured in admin.html > Settings > Ad networks) ======
+   mode "global"       = page-level script (Monetag Vignette/Push/OnClick/Popunder, Adsterra Social bar/Popunder ...).
+                         It is added to the page ONCE after login and the network decides when to show.
+   mode "interstitial" = banner/HTML ad shown in the full-screen ad screen before video / mining start / claim.
+   mode "banner"       = banner/HTML ad shown under the video player (refreshes).
+   Box modes run inside a sandboxed iframe so each ad runs fresh every time (rotating between networks). */
+const adNets=m=>(S.adNets||[]).filter(n=>n&&n.enabled&&n.mode===m&&String(n.code||'').trim());
+const adRot={interstitial:0,banner:0};let globalDone=false,adIv=null;
+function normAds(d){
+  if(Array.isArray(d.adNets))return d.adNets.map(n=>({name:n?.name||'',mode:['global','interstitial','banner'].includes(n?.mode)?n.mode:'global',enabled:n?.enabled!==false,h:Number(n?.h)||0,code:String(n?.code||'')}));
+  const a=d.ads||{},o=[]; /* old settings format */
+  if(a.interstitial)o.push({name:'Monetag',mode:'global',enabled:true,h:0,code:a.interstitial});
+  if(a.banner)o.push({name:'Banner',mode:'banner',enabled:true,h:100,code:a.banner});
+  return o;
+}
+function adFrame(code,h){
+  const f=document.createElement('iframe');
+  f.setAttribute('sandbox','allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms');
+  f.style.cssText='width:100%;height:'+(Number(h)||250)+'px;border:0;display:block';
+  f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;background:transparent;color:#e8ecff;font:14px sans-serif;text-align:center}</style></head><body>'+code+'</body></html>';
+  return f;
+}
+function loadGlobalAds(){
+  if(globalDone||!uid)return;const list=adNets('global');if(!list.length)return;
+  globalDone=true;list.forEach(n=>{try{injectHTML(document.body,n.code,true)}catch(x){console.error('ad',n.name,x)}});
+}
 function showAd(cb){
-  $('#ad').classList.remove('hidden');
-  injectHTML($('#adBox'),S.ads.interstitial||'<div class="mut text-sm text-center p-8">'+esc(t('adLabel'))+'</div>');
-  let n=S.adSkipSec;const b=$('#adSkip');b.disabled=true;b.textContent=t('skipIn')+' '+n;
-  const iv=setInterval(()=>{n--;if(n>0)b.textContent=t('skipIn')+' '+n;else{clearInterval(iv);b.disabled=false;b.textContent=t('skip')+' ▶'}},1000);
-  b.onclick=()=>{if(b.disabled)return;$('#ad').classList.add('hidden');$('#adBox').innerHTML='';cb&&cb()};
+  const list=adNets('interstitial');
+  if(!list.length){cb&&cb();return} /* no interstitial network configured: continue directly */
+  const n=list[adRot.interstitial++%list.length],box=$('#adBox'),b=$('#adSkip');
+  $('#ad').classList.remove('hidden');box.innerHTML='';box.appendChild(adFrame(n.code,n.h||300));
+  let k=Math.max(1,Number(S.adSkipSec)||3);b.disabled=true;b.textContent=t('skipIn')+' '+k;
+  clearInterval(adIv);
+  adIv=setInterval(()=>{k--;if(k>0)b.textContent=t('skipIn')+' '+k;else{clearInterval(adIv);b.disabled=false;b.textContent=t('skip')+' ▶'}},1000);
+  b.onclick=()=>{if(b.disabled)return;clearInterval(adIv);$('#ad').classList.add('hidden');box.innerHTML='';cb&&cb()};
+}
+function renderBanner(){
+  const box=$('#vBanner'),list=adNets('banner');
+  if(!list.length){box.innerHTML='';box.classList.add('hidden');return}
+  const n=list[adRot.banner++%list.length];box.classList.remove('hidden');box.innerHTML='';box.appendChild(adFrame(n.code,n.h||100));
 }
 
 /* ====== language ====== */
@@ -292,11 +357,12 @@ function applyLang(){
 
 /* ====== countries ====== */
 const COUNTRIES=[['BD','Bangladesh'],['IN','India'],['PK','Pakistan'],['NP','Nepal'],['LK','Sri Lanka'],['MM','Myanmar'],['ID','Indonesia'],['MY','Malaysia'],['PH','Philippines'],['TH','Thailand'],['VN','Vietnam'],['SG','Singapore'],['CN','China'],['JP','Japan'],['KR','South Korea'],['AE','UAE'],['SA','Saudi Arabia'],['QA','Qatar'],['KW','Kuwait'],['OM','Oman'],['BH','Bahrain'],['TR','Turkey'],['EG','Egypt'],['NG','Nigeria'],['GH','Ghana'],['KE','Kenya'],['ZA','South Africa'],['US','United States'],['CA','Canada'],['MX','Mexico'],['BR','Brazil'],['GB','United Kingdom'],['DE','Germany'],['FR','France'],['IT','Italy'],['ES','Spain'],['NL','Netherlands'],['RU','Russia'],['UA','Ukraine'],['AU','Australia'],['NZ','New Zealand'],['XX','Other']];
-$('#rCountry').innerHTML=COUNTRIES.map(([c,n])=>`<option value="${c}">${flag(c)} ${c} — ${n}</option>`).join('');
-fetch('https://ipapi.co/json/').then(r=>r.json()).then(j=>{const c=(j.country_code||'').toUpperCase();if(COUNTRIES.some(x=>x[0]===c))$('#rCountry').value=c}).catch(()=>{});
+const countryOpts=COUNTRIES.map(([c,n])=>`<option value="${c}">${flag(c)} ${c} — ${n}</option>`).join('');
+$('#rCountry').innerHTML=countryOpts;$('#cCountry').innerHTML=countryOpts;
+fetch('https://ipapi.co/json/').then(r=>r.json()).then(j=>{const c=(j.country_code||'').toUpperCase();if(COUNTRIES.some(x=>x[0]===c)){$('#rCountry').value=c;$('#cCountry').value=c}}).catch(()=>{});
 const urlRef=(new URLSearchParams(location.search).get('ref')||'').toUpperCase();
 if(urlRef)localStorage.setItem('lm_ref',urlRef);
-$('#rRef').value=localStorage.getItem('lm_ref')||'';
+$('#rRef').value=localStorage.getItem('lm_ref')||'';$('#cRef').value=localStorage.getItem('lm_ref')||'';
 
 /* ====== device limit ====== */
 function getUuid(){let u=localStorage.getItem('lm_uuid');if(!u){u='uuid_'+(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));localStorage.setItem('lm_uuid',u)}return u}
@@ -311,63 +377,108 @@ async function fingerprint(){
   return 'fp_'+hex;
 }
 const genCode=()=>Array.from({length:8},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
+async function checkDevice(){
+  const uuid=getUuid(),fp=await fingerprint();
+  const chk=[getDoc(doc(db,'devices',uuid))];if(S.deviceFingerprint)chk.push(getDoc(doc(db,'devices',fp)));
+  if((await Promise.all(chk)).some(s=>s.exists())||localStorage.getItem('lm_acct')){const e=new Error(t('deviceUsed'));e.deviceBlocked=true;throw e}
+  return{uuid,fp};
+}
+/* creates users/{id} + refcodes + devices in one batch (used by email register AND Google/complete-profile) */
+async function writeProfile(id,{name,email,country,ref,photo},uuid,fp){
+  let referredBy=null;
+  if(ref){const rs=await getDoc(doc(db,'refcodes',ref));if(rs.exists()&&rs.data().uid!==id)referredBy=rs.data().uid}
+  const code=genCode(),bt=writeBatch(db);
+  bt.set(doc(db,'users',id),{uid:id,name,email,country,refCode:code,referredBy,balanceLM:0,balanceUSD:0,earnedLM:0,earnedUSD:0,minedLM:0,tasksDone:0,miningStart:null,banned:false,photo:photo||'',deviceFp:fp,deviceUuid:uuid,createdAt:serverTimestamp()});
+  bt.set(doc(db,'refcodes',code),{uid:id});
+  bt.set(doc(db,'devices',uuid),{uid:id,at:serverTimestamp()});
+  if(S.deviceFingerprint)bt.set(doc(db,'devices',fp),{uid:id,at:serverTimestamp()});
+  await bt.commit();
+  localStorage.setItem('lm_acct',id);
+}
 
 /* ====== auth ====== */
 function authErr(m){const e=$('#authErr');e.textContent=m||'';e.classList.toggle('hidden',!m)}
+function cErr(m){const e=$('#cErr');e.textContent=m||'';e.classList.toggle('hidden',!m)}
 $('#fLogin').addEventListener('submit',async e=>{e.preventDefault();authErr('');const b=e.submitter;b.disabled=true;
   try{await signInWithEmailAndPassword(auth,$('#lEmail').value.trim(),$('#lPass').value)}catch(x){authErr(friendly(x))}b.disabled=false});
 $('#fReg').addEventListener('submit',async e=>{
   e.preventDefault();authErr('');const b=e.submitter;b.disabled=true;
   const name=$('#rName').value.trim(),email=$('#rEmail').value.trim().toLowerCase(),pw=$('#rPass').value,country=$('#rCountry').value,ref=$('#rRef').value.trim().toUpperCase();
   try{
-    const uuid=getUuid(),fp=await fingerprint();
-    const chk=[getDoc(doc(db,'devices',uuid))];if(S.deviceFingerprint)chk.push(getDoc(doc(db,'devices',fp)));
-    if((await Promise.all(chk)).some(s=>s.exists())||localStorage.getItem('lm_acct'))throw new Error(t('deviceUsed'));
+    const{uuid,fp}=await checkDevice();
     registering=true;
     const cred=await createUserWithEmailAndPassword(auth,email,pw),id=cred.user.uid;
-    try{
-      let referredBy=null;
-      if(ref){const rs=await getDoc(doc(db,'refcodes',ref));if(rs.exists()&&rs.data().uid!==id)referredBy=rs.data().uid}
-      const code=genCode(),bt=writeBatch(db);
-      bt.set(doc(db,'users',id),{uid:id,name,email,country,refCode:code,referredBy,balanceLM:0,balanceUSD:0,earnedLM:0,earnedUSD:0,minedLM:0,tasksDone:0,miningStart:null,banned:false,photo:'',deviceFp:fp,deviceUuid:uuid,createdAt:serverTimestamp()});
-      bt.set(doc(db,'refcodes',code),{uid:id});
-      bt.set(doc(db,'devices',uuid),{uid:id,at:serverTimestamp()});
-      if(S.deviceFingerprint)bt.set(doc(db,'devices',fp),{uid:id,at:serverTimestamp()});
-      await bt.commit();
-    }catch(x){await cred.user.delete().catch(()=>{});throw x}
-    localStorage.setItem('lm_acct',id);registering=false;startSession(auth.currentUser);
+    try{await writeProfile(id,{name,email,country,ref,photo:''},uuid,fp)}
+    catch(x){await cred.user.delete().catch(()=>{});throw x}
+    registering=false;startSession(auth.currentUser);
   }catch(x){registering=false;authErr(friendly(x))}
   b.disabled=false;
 });
 
+/* ---- Google sign-in ---- */
+const gProvider=new GoogleAuthProvider();gProvider.setCustomParameters({prompt:'select_account'});
+async function googleLogin(){
+  authErr('');
+  try{await signInWithPopup(auth,gProvider)}
+  catch(x){
+    if(x.code==='auth/popup-closed-by-user'||x.code==='auth/cancelled-popup-request')return;
+    if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(x.code)){
+      try{await signInWithRedirect(auth,gProvider);return}catch(y){authErr(friendly(y));return}
+    }
+    authErr(friendly(x));
+  }
+}
+getRedirectResult(auth).catch(x=>authErr(friendly(x)));
+
+/* new Google user (no profile yet) -> choose country + referral, then create profile */
+function showComplete(){
+  $('#auth').classList.add('hidden');$('#app').classList.add('hidden');$('#banned').classList.add('hidden');$('#complete').classList.remove('hidden');
+  $('#cWho').textContent=auth.currentUser?.email||'';
+}
+async function completeProfile(){
+  const u=auth.currentUser;if(!u)return;const b=$('#cBtn');b.disabled=true;cErr('');
+  try{
+    const{uuid,fp}=await checkDevice();
+    registering=true;
+    const name=((u.displayName||(u.email||'User').split('@')[0]).trim().slice(0,40))||'User';
+    await writeProfile(u.uid,{name,email:u.email,country:$('#cCountry').value,ref:$('#cRef').value.trim().toUpperCase(),photo:/^https:\/\//.test(u.photoURL||'')?u.photoURL:''},uuid,fp);
+    registering=false;startSession(u);
+  }catch(x){
+    registering=false;
+    if(x.deviceBlocked){await u.delete().catch(()=>{});await signOut(auth).catch(()=>{});authErr(x.message)}
+    else cErr(friendly(x));
+  }
+  b.disabled=false;
+}
+
 onAuthStateChanged(auth,u=>{
   $('#splash').classList.add('hidden');
   if(registering)return;
-  if(u)startSession(u);else{stopSession();$('#app').classList.add('hidden');$('#banned').classList.add('hidden');$('#auth').classList.remove('hidden')}
+  if(u)startSession(u);else{stopSession();$('#app').classList.add('hidden');$('#banned').classList.add('hidden');$('#complete').classList.add('hidden');$('#auth').classList.remove('hidden')}
 });
 
 function stopSession(){subs.forEach(f=>f());subs=[];me=null;uid=null}
 function startSession(u){
   stopSession();uid=u.uid;
   subs.push(onSnapshot(doc(db,'users',uid),snap=>{
-    if(!snap.exists()){if(!registering){toast('Profile not found');signOut(auth)}return}
+    if(!snap.exists()){if(!registering)showComplete();return}
     const d=snap.data({serverTimestamps:'estimate'});
     me={...d,miningMs:d.miningStart?d.miningStart.toMillis():null};
-    $('#auth').classList.add('hidden');
+    $('#auth').classList.add('hidden');$('#complete').classList.add('hidden');
     if(me.banned){$('#app').classList.add('hidden');$('#banned').classList.remove('hidden');return}
-    $('#banned').classList.add('hidden');$('#app').classList.remove('hidden');renderAll();
+    $('#banned').classList.add('hidden');$('#app').classList.remove('hidden');renderAll();loadGlobalAds();
   },e=>toast(friendly(e))));
-  subs.push(onSnapshot(query(collection(db,'videos'),where('active','==',true)),s=>{videos=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderVideos()}));
-  subs.push(onSnapshot(query(collection(db,'tasks'),where('active','==',true)),s=>{tasks=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.audience!=='one'||x.targetUid===uid).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderTasks()}));
-  subs.push(onSnapshot(query(collection(db,'task_requests'),where('uid','==',uid)),s=>{reqs={};s.docs.forEach(d=>reqs[d.data().taskId]=d.data().status);renderTasks();if(!$('#mTask').classList.contains('hidden'))renderTaskModal()}));
-  subs.push(onSnapshot(collection(db,'users',uid,'watched'),s=>{watched=new Set(s.docs.map(d=>d.id))}));
-  subs.push(onSnapshot(query(collection(db,'withdrawals'),where('uid','==',uid)),s=>{wds=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderWds()}));
+  subs.push(onSnapshot(query(collection(db,'videos'),where('active','==',true)),s=>{videos=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderVideos()},e=>toast(friendly(e))));
+  subs.push(onSnapshot(query(collection(db,'tasks'),where('active','==',true)),s=>{tasks=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.audience!=='one'||x.targetUid===uid).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderTasks()},e=>toast(friendly(e))));
+  subs.push(onSnapshot(query(collection(db,'task_requests'),where('uid','==',uid)),s=>{reqs={};s.docs.forEach(d=>reqs[d.data().taskId]=d.data().status);renderTasks();if(!$('#mTask').classList.contains('hidden'))renderTaskModal()},e=>toast(friendly(e))));
+  subs.push(onSnapshot(collection(db,'users',uid,'watched'),s=>{watched=new Set(s.docs.map(d=>d.id))},()=>{}));
+  subs.push(onSnapshot(query(collection(db,'withdrawals'),where('uid','==',uid)),s=>{wds=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderWds()},e=>toast(friendly(e))));
   getDocs(query(collection(db,'users'),where('referredBy','==',uid))).then(s=>$('#pRefCount').textContent=s.size).catch(()=>{});
 }
 onSnapshot(doc(db,'settings','main'),s=>{
   if(!s.exists())return;const d=s.data();
-  S={...DEF,...d,links:{...d.links},ads:{...DEF.ads,...d.ads},i18nCcp:d.i18nCcp||{},payments:d.payments||DEF.payments};
-  applyLang();
+  S={...DEF,...d,links:{...d.links},adNets:normAds(d),i18nCcp:d.i18nCcp||{},payments:d.payments||DEF.payments};
+  applyLang();loadGlobalAds();
 },()=>{});
 
 /* ====== tabs / render ====== */
@@ -386,7 +497,7 @@ let yt=null,vIv=null,bIv=null,vs={running:false,left:0,v:null,done:false};
 const loadYT=()=>new Promise(r=>{if(window.YT&&YT.Player)return r();const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';window.onYouTubeIframeAPIReady=()=>r();document.head.appendChild(s)});
 function playVideo(id){
   const v=videos.find(x=>x.id===id);if(!v)return;
-  showAd(async()=>{
+  showAd(async()=>{ /* interstitial always comes first */
     vs={running:false,left:Number(v.duration)||0,v,done:watched.has(v.id)};
     $('#vTitle').textContent=v.title;$('#vReward').textContent='+'+fmt(v.reward,6)+' LM';
     $('#vNote').textContent=vs.done?t('alreadyRewarded'):t('timerNote');
@@ -394,9 +505,8 @@ function playVideo(id){
     openM('mVideo');
     await loadYT();
     yt=new YT.Player('ytBox',{width:'100%',height:'100%',videoId:v.ytId,playerVars:{playsinline:1,rel:0,modestbranding:1},events:{onStateChange:e=>{vs.running=e.data===1}}});
-    const ban=()=>injectHTML($('#vBanner'),S.ads.banner||'<div class="mut text-xs text-center p-5">'+esc(t('adLabel'))+'</div>');
-    ban();bIv=setInterval(ban,Math.max(15,S.bannerEverySec)*1000);
-    vIv=setInterval(()=>{if(!vs.running||vs.done)return;vs.left--;$('#vTimer').textContent=mmss(vs.left);if(vs.left<=0)finishVideo()},1000);
+    renderBanner();clearInterval(bIv);bIv=setInterval(renderBanner,Math.max(15,Number(S.bannerEverySec)||60)*1000);
+    clearInterval(vIv);vIv=setInterval(()=>{if(!vs.running||vs.done)return;vs.left--;$('#vTimer').textContent=mmss(vs.left);if(vs.left<=0)finishVideo()},1000);
   });
 }
 async function finishVideo(){
@@ -409,7 +519,7 @@ async function finishVideo(){
     await b.commit();$('#vNote').textContent=t('rewarded');toast('+'+fmt(r,6)+' LM');
   }catch(x){toast(friendly(x))}
 }
-function closeVideo(){clearInterval(vIv);clearInterval(bIv);try{yt&&yt.destroy()}catch{}yt=null;$('#ytWrap').innerHTML='<div id="ytBox"></div>';$('#vBanner').innerHTML='';$('#mVideo').classList.add('hidden')}
+function closeVideo(){clearInterval(vIv);clearInterval(bIv);try{yt&&yt.destroy()}catch{}yt=null;$('#ytWrap').innerHTML='<div id="ytBox"></div>';$('#vBanner').innerHTML='';$('#vBanner').classList.add('hidden');$('#mVideo').classList.add('hidden')}
 
 /* ---- mining ---- */
 function mineState(){
@@ -486,7 +596,7 @@ function renderCommunity(){
 
 /* ---- profile ---- */
 function renderProfile(){
-  const av=me.photo&&/^https:\/\//.test(me.photo)?`<img src="${esc(me.photo)}" class="w-20 h-20 rounded-full object-cover mx-auto" alt="">`:`<div class="logo !w-20 !h-20 !rounded-full !text-3xl">${esc((me.name||'?')[0].toUpperCase())}</div>`;
+  const av=me.photo&&/^https:\/\//.test(me.photo)?`<img src="${esc(me.photo)}" class="w-20 h-20 rounded-full object-cover mx-auto" alt="" referrerpolicy="no-referrer">`:`<div class="logo !w-20 !h-20 !rounded-full !text-3xl">${esc((me.name||'?')[0].toUpperCase())}</div>`;
   $('#pAvatar').innerHTML=av;$('#pName').textContent=me.name;$('#pEmail').textContent=me.email;$('#pCountry').textContent=flag(me.country)+' '+me.country;
   $('#pRef').value=location.origin+location.pathname+'?ref='+me.refCode;
   $('#sUSD').textContent=fmt(me.balanceUSD,4);$('#sLM').textContent=fmt(me.balanceLM,8);$('#sTasks').textContent=me.tasksDone||0;$('#sMined').textContent=fmt(me.minedLM,8);
@@ -550,6 +660,7 @@ async function doWithdraw(){
 const A={
   authTab:d=>{const r=d.t==='reg';$('#fLogin').classList.toggle('hidden',r);$('#fReg').classList.toggle('hidden',!r);$('#tabLogin').classList.toggle('on',!r);$('#tabReg').classList.toggle('on',r);authErr('')},
   forgot:async()=>{const e=$('#lEmail').value.trim();if(!e)return authErr(t('email'));try{await sendPasswordResetEmail(auth,e);toast('Reset email sent')}catch(x){authErr(friendly(x))}},
+  google:googleLogin,completeProfile,
   lang:()=>{lang=lang==='ccp'?'en':'ccp';localStorage.setItem('lm_lang',lang);applyLang()},
   logout:()=>signOut(auth),
   tab:d=>switchTab(d.t),
