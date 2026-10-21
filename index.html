@@ -134,6 +134,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
   <!-- MINE -->
   <section id="tab-mine" class="tab hidden px-4 pt-2">
     <h2 class="text-lg font-bold mb-3" data-i18n="mine"></h2>
+    <div id="adMineTop" class="mb-3 hidden"></div>
     <div class="card p-5 text-center">
       <div class="mut text-sm" data-i18n="miningTitle"></div>
       <div class="relative w-52 h-52 mx-auto my-4">
@@ -158,12 +159,15 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
   <!-- TASK -->
   <section id="tab-task" class="tab hidden px-4 pt-2">
     <h2 class="text-lg font-bold mb-3" data-i18n="task"></h2>
+    <div id="adTaskTop" class="mb-3 hidden"></div>
     <div id="taskGrid" class="grid grid-cols-2 gap-3"></div>
+    <div id="adTaskNative" class="mt-3 hidden"></div>
   </section>
 
   <!-- COMMUNITY -->
   <section id="tab-community" class="tab hidden px-4 pt-2">
     <h2 class="text-lg font-bold mb-3" data-i18n="community"></h2>
+    <div id="adStrip" class="mb-3"></div>
     <div id="commList" class="space-y-3"></div>
   </section>
 
@@ -194,6 +198,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
     <div class="card p-4 mt-3"><div class="font-bold mb-2" data-i18n="history"></div><div id="wdList" class="space-y-2 text-sm"></div></div>
     <div id="supportBtns" class="grid gap-3 mt-3"></div>
     <button class="btn btn-ghost w-full mt-3" data-act="logout" data-i18n="logout"></button>
+    <div id="adProfile" class="mt-4 space-y-2 hidden"></div>
   </section>
 
   <nav class="nav"><div class="flex max-w-md mx-auto">
@@ -214,7 +219,8 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
     <div class="text-right"><div class="text-xs mut" data-i18n="reward"></div><div id="vReward" class="font-bold"></div></div>
   </div>
   <p id="vNote" class="text-xs mut mt-2"></p>
-  <div id="vBanner" class="mt-3 card2 overflow-hidden hidden"></div>
+  <button id="vClaim" class="btn btn-green w-full mt-3 hidden" data-act="videoClaim"></button>
+  <div id="vBanner" class="mt-3 hidden"></div>
 </div></div>
 
 <div id="mTask" class="modal hidden"><div>
@@ -242,11 +248,10 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
   <div id="wdBody"></div>
 </div></div>
 
-<!-- full screen interstitial (shown before video / mining start / claim) -->
-<div id="ad" class="hidden" style="position:fixed;inset:0;z-index:80;background:#05070f;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
-  <div class="text-xs mut mb-2" data-i18n="adLabel"></div>
-  <div id="adBox" class="w-full max-w-md card2 overflow-auto" style="min-height:260px;max-height:70vh"></div>
-  <button id="adSkip" class="btn btn-pri mt-4" disabled></button>
+<!-- full screen interstitial (before video / every minute in video / reward claim / mining start) -->
+<div id="ad" class="hidden" style="position:fixed;inset:0;z-index:80;background:#05070f">
+  <div id="adBox" style="position:absolute;inset:0"></div>
+  <button id="adSkip" class="btn btn-pri" style="position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:12px;z-index:2;padding:8px 14px;font-size:13px" disabled></button>
 </div>
 
 <script type="module">
@@ -275,7 +280,7 @@ const hms=s=>{s=Math.max(0,Math.floor(s));return [Math.floor(s/3600),Math.floor(
 
 /* ====== i18n (English + Chakma) ====== */
 const EN={tagline:'Watch, mine & complete tasks to earn LM Coin',login:'Login',register:'Register',email:'Email',password:'Password',name:'Name',country:'Country',refCode:'Referral code (optional)',createAccount:'Create account',signIn:'Sign in',forgot:'Forgot password?',logout:'Logout',
-or:'or',google:'Continue with Google',completeTitle:'Complete your profile',continue:'Continue',cancel:'Cancel',
+or:'or',adBreak:'Ad break',adTap:'Tap to continue',google:'Continue with Google',completeTitle:'Complete your profile',continue:'Continue',cancel:'Cancel',
 video:'Video',mine:'Mine',task:'Task',community:'Community',profile:'Profile',
 noVideos:'No videos yet',play:'Play',reward:'Reward',adLabel:'Advertisement',skipIn:'Skip in',skip:'Skip',watchTimer:'Watch timer',timerNote:'Timer runs only while the video is playing.',rewarded:'Reward added to your balance!',alreadyRewarded:'You already received the reward for this video.',
 miningTitle:'LM Coin mining',startMining:'Start mining',mining:'Mining…',claim:'Claim reward',rate:'Mining rate',minedTotal:'Total mined',idle:'Ready to start',running:'Mining in progress',ready:'Mining complete! Claim now',per:'per',hours:'hours',mineDone:'⛏️ Mining finished – claim your LM!',claimed:'Mining reward claimed!',
@@ -290,7 +295,7 @@ const CCP={video:'𑄞𑄨𑄓𑄨𑄃𑄱',mine:'𑄞𑄣',task:'𑄦𑄟𑄴',
 if(location.search.includes('keys=1')){document.body.innerHTML='<p style="padding:10px;font:14px sans-serif">Copy this JSON, translate the values into Chakma, and paste it in admin.html → Settings → Chakma translations.</p><textarea style="width:96%;height:80vh;margin:2%;font:13px monospace">'+JSON.stringify(EN,null,2)+'</textarea>';throw 0}
 
 let lang=localStorage.getItem('lm_lang')||'en';
-const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,bannerEverySec:60,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',links:{},adNets:[],i18nCcp:{},
+const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,bannerEverySec:60,videoAdEverySec:60,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',links:{},adSlots:[],i18nCcp:{},
 payments:{bkash:{name:'bKash',scope:'BD',enabled:true,minUSD:1,hint:'bKash number'},nagad:{name:'Nagad',scope:'BD',enabled:true,minUSD:1,hint:'Nagad number'},binance:{name:'Binance Pay',scope:'INTL',enabled:true,minUSD:5,hint:'Binance Pay ID'},usdt:{name:'USDT (TRC20/BEP20)',scope:'INTL',enabled:true,minUSD:5,hint:'Wallet address + network'},nsave:{name:'Nsave',scope:'INTL',enabled:true,minUSD:5,hint:'Nsave account'}}};
 let S=JSON.parse(JSON.stringify(DEF));
 const t=k=>lang==='ccp'?(S.i18nCcp?.[k]||CCP[k]||EN[k]||k):(EN[k]||k);
@@ -305,46 +310,93 @@ function injectHTML(el,html,keep){if(!keep)el.innerHTML='';const tmp=document.cr
 const openM=id=>$('#'+id).classList.remove('hidden');
 function closeAll(){$$('.modal').forEach(m=>m.classList.add('hidden'))}
 
-/* ====== ADS (up to 5 networks, configured in admin.html > Settings > Ad networks) ======
-   mode "global"       = page-level script (Monetag Vignette/Push/OnClick/Popunder, Adsterra Social bar/Popunder ...).
-                         It is added to the page ONCE after login and the network decides when to show.
-   mode "interstitial" = banner/HTML ad shown in the full-screen ad screen before video / mining start / claim.
-   mode "banner"       = banner/HTML ad shown under the video player (refreshes).
-   Box modes run inside a sandboxed iframe so each ad runs fresh every time (rotating between networks). */
-const adNets=m=>(S.adNets||[]).filter(n=>n&&n.enabled&&n.mode===m&&String(n.code||'').trim());
-const adRot={interstitial:0,banner:0};let globalDone=false,adIv=null;
+/* ====== ADS ======
+   Every ad code is added in admin.html > Settings > Ad placements together with a PLACEMENT
+   (where it shows). No cards / borders / boxes: banners sit inline, interstitials are full screen.
+   Code types:
+     - Direct link URL (https://...)  -> opens in a new tab when the user taps (interstitial / popunder)
+     - Script / HTML                  -> runs in a clean transparent sandboxed iframe (full screen for interstitials)
+     - placement "global" and social bars (sb_*) -> script is added to the page itself (floating ads)          */
+const adSlots=p=>(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place===p&&String(n.code||'').trim());
+const isUrl=c=>/^https?:\/\/\S+$/i.test(String(c||'').trim());
+const adRot={},adTimers=[],injected=new Set();let adIv=null;
+const rot=(k,list)=>{const i=adRot[k]||0;adRot[k]=i+1;return list[i%list.length]};
 function normAds(d){
-  if(Array.isArray(d.adNets))return d.adNets.map(n=>({name:n?.name||'',mode:['global','interstitial','banner'].includes(n?.mode)?n.mode:'global',enabled:n?.enabled!==false,h:Number(n?.h)||0,code:String(n?.code||'')}));
-  const a=d.ads||{},o=[]; /* old settings format */
-  if(a.interstitial)o.push({name:'Monetag',mode:'global',enabled:true,h:0,code:a.interstitial});
-  if(a.banner)o.push({name:'Banner',mode:'banner',enabled:true,h:100,code:a.banner});
+  if(Array.isArray(d.adSlots))return d.adSlots.map(n=>({name:n?.name||'',place:String(n?.place||'global'),enabled:n?.enabled!==false,h:Number(n?.h)||0,code:String(n?.code||'')}));
+  const o=[]; /* migrate older settings formats */
+  (d.adNets||[]).forEach(n=>{if(n)o.push({name:n.name||'',place:n.mode==='interstitial'?'int_video_start':n.mode==='banner'?'bn_video':'global',enabled:n.enabled!==false,h:Number(n.h)||0,code:String(n.code||'')})});
+  if(!d.adNets){const a=d.ads||{};if(a.interstitial)o.push({name:'Monetag',place:'global',enabled:true,h:0,code:a.interstitial});if(a.banner)o.push({name:'Banner',place:'bn_video',enabled:true,h:100,code:a.banner})}
   return o;
 }
-function adFrame(code,h){
+function adFrame(code,h,full){
   const f=document.createElement('iframe');
-  f.setAttribute('sandbox','allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms');
-  f.style.cssText='width:100%;height:'+(Number(h)||250)+'px;border:0;display:block';
-  f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;background:transparent;color:#e8ecff;font:14px sans-serif;text-align:center}</style></head><body>'+code+'</body></html>';
+  f.setAttribute('sandbox','allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms allow-top-navigation-by-user-activation');
+  f.setAttribute('scrolling','no');
+  f.style.cssText=full?'position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent':'width:100%;height:'+(Number(h)||100)+'px;border:0;display:block;background:transparent';
+  const css=full?'html,body{margin:0;height:100%;background:#05070f;display:flex;align-items:center;justify-content:center;overflow:hidden}':'html,body{margin:0;padding:0;background:transparent;overflow:hidden;display:flex;justify-content:center}';
+  f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body>'+code+'</body></html>';
   return f;
 }
-function loadGlobalAds(){
-  if(globalDone||!uid)return;const list=adNets('global');if(!list.length)return;
-  globalDone=true;list.forEach(n=>{try{injectHTML(document.body,n.code,true)}catch(x){console.error('ad',n.name,x)}});
+const clearAdTimers=()=>adTimers.splice(0).forEach(clearInterval);
+/* inline ad (banner / native) inside element el. o: {all:show every slot stacked, reload:sec, h:default height, idx:slot index} */
+function mountAd(el,place,o={}){
+  if(!el)return;const list=adSlots(place).filter(n=>!isUrl(n.code));
+  if(!list.length){el.innerHTML='';el.classList.add('hidden');return}
+  const draw=()=>{el.innerHTML='';
+    const pick=o.all?list:[o.idx!=null?list[o.idx%list.length]:rot(place+(el.id||''),list)];
+    pick.forEach(n=>el.appendChild(adFrame(n.code,Number(n.h)||o.h||100)));
+    el.classList.remove('hidden')};
+  draw();
+  if(o.reload>0)adTimers.push(setInterval(draw,o.reload*1000));
 }
-function showAd(cb){
-  const list=adNets('interstitial');
-  if(!list.length){cb&&cb();return} /* no interstitial network configured: continue directly */
-  const n=list[adRot.interstitial++%list.length],box=$('#adBox'),b=$('#adSkip');
-  $('#ad').classList.remove('hidden');box.innerHTML='';box.appendChild(adFrame(n.code,n.h||300));
+function mountEmpty(sel){$$(sel).forEach(el=>{if(!el.childNodes.length)mountAd(el,el.dataset.adm,{h:el.dataset.adm.startsWith('nat')?250:100,idx:Number(el.dataset.i)||0})})}
+/* page-level scripts (global, social bars): added to the page once */
+function injectOnce(place){
+  if(!uid)return;
+  adSlots(place).forEach(n=>{const k=place+'|'+n.code;if(injected.has(k)||isUrl(n.code))return;injected.add(k);try{injectHTML(document.body,n.code,true)}catch(x){console.error('ad',n.name,x)}});
+}
+const loadGlobalAds=()=>injectOnce('global');
+/* popunder: once a day per section (runs on the tab tap) */
+function popunder(sec){
+  const list=adSlots('popunder');if(!list.length)return;
+  const k='lm_pop_'+sec,day=new Date().toLocaleDateString('en-CA');
+  if(localStorage.getItem(k)===day)return;
+  localStorage.setItem(k,day);
+  const n=rot('pop'+sec,list);
+  if(isUrl(n.code)){const w=window.open(n.code.trim(),'_blank');try{w&&w.blur();window.focus()}catch{}}
+  else{try{injectHTML(document.body,n.code,true)}catch(x){console.error(x)}}
+}
+/* full-screen interstitial. o.gesture=false when it is not caused by a tap (e.g. every-minute ad during video) */
+function showAd(place,cb,o={}){
+  const list=adSlots(place);
+  if(!list.length){cb&&cb();return}
+  const gesture=o.gesture!==false,n=rot('show'+place,list),box=$('#adBox'),b=$('#adSkip'),ov=$('#ad');
+  const close=()=>{clearInterval(adIv);ov.classList.add('hidden');box.innerHTML='';cb&&cb()};
+  if(isUrl(n.code)){
+    if(gesture){window.open(n.code.trim(),'_blank');cb&&cb();return} /* direct link: opens on the tap, then continue */
+    ov.classList.remove('hidden');b.classList.add('hidden');
+    box.innerHTML='<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px"><div class="mut text-sm">'+esc(t('adBreak'))+'</div><button class="btn btn-pri" id="adGo">'+esc(t('adTap'))+' ▶</button></div>';
+    $('#adGo').onclick=()=>{window.open(n.code.trim(),'_blank');close()};
+    return;
+  }
+  ov.classList.remove('hidden');b.classList.remove('hidden');box.innerHTML='';box.appendChild(adFrame(n.code,0,true));
   let k=Math.max(1,Number(S.adSkipSec)||3);b.disabled=true;b.textContent=t('skipIn')+' '+k;
   clearInterval(adIv);
   adIv=setInterval(()=>{k--;if(k>0)b.textContent=t('skipIn')+' '+k;else{clearInterval(adIv);b.disabled=false;b.textContent=t('skip')+' ▶'}},1000);
-  b.onclick=()=>{if(b.disabled)return;clearInterval(adIv);$('#ad').classList.add('hidden');box.innerHTML='';cb&&cb()};
+  b.onclick=()=>{if(!b.disabled)close()};
 }
-function renderBanner(){
-  const box=$('#vBanner'),list=adNets('banner');
-  if(!list.length){box.innerHTML='';box.classList.add('hidden');return}
-  const n=list[adRot.banner++%list.length];box.classList.remove('hidden');box.innerHTML='';box.appendChild(adFrame(n.code,n.h||100));
+/* community: moving strip of up to 5 network ads */
+function mountStrip(){
+  const el=$('#adStrip'),list=adSlots('strip_comm').filter(n=>!isUrl(n.code)).slice(0,5);
+  if(!list.length){el.innerHTML='';return}
+  const sig=list.map(n=>n.code).join('|');
+  if(el.dataset.sig!==sig||!$('#stripRow')){
+    el.dataset.sig=sig;el.innerHTML='<div id="stripRow" style="position:relative;display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none"></div>';
+    const r=$('#stripRow');
+    list.forEach(n=>{const w=document.createElement('div');w.style.cssText='flex:0 0 100%;scroll-snap-align:center';w.appendChild(adFrame(n.code,Number(n.h)||100));r.appendChild(w)});
+  }
+  const row=$('#stripRow');let i=0;
+  adTimers.push(setInterval(()=>{const c=row.children.length;if(c<2)return;i=(i+1)%c;row.scrollTo({left:row.children[i].offsetLeft,behavior:'smooth'})},4000));
 }
 
 /* ====== language ====== */
@@ -477,12 +529,21 @@ function startSession(u){
 }
 onSnapshot(doc(db,'settings','main'),s=>{
   if(!s.exists())return;const d=s.data();
-  S={...DEF,...d,links:{...d.links},adNets:normAds(d),i18nCcp:d.i18nCcp||{},payments:d.payments||DEF.payments};
+  S={...DEF,...d,links:{...d.links},adSlots:normAds(d),i18nCcp:d.i18nCcp||{},payments:d.payments||DEF.payments};
   applyLang();loadGlobalAds();
 },()=>{});
 
 /* ====== tabs / render ====== */
-function switchTab(n){tab=n;$$('.tab').forEach(s=>s.classList.toggle('hidden',s.id!=='tab-'+n));$$('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===n));window.scrollTo(0,0);if(n==='mine')$('#mineDot').classList.add('hidden')}
+function switchTab(n){
+  tab=n;$$('.tab').forEach(s=>s.classList.toggle('hidden',s.id!=='tab-'+n));$$('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===n));window.scrollTo(0,0);
+  if(n==='mine')$('#mineDot').classList.add('hidden');
+  clearAdTimers();popunder(n); /* popunder: once a day per section */
+  const rl=Math.max(10,Number(S.bannerEverySec)||60);
+  if(n==='mine'){mountAd($('#adMineTop'),'bn_mine',{reload:rl,h:100});injectOnce('sb_mine')}
+  if(n==='task'){mountAd($('#adTaskTop'),'bn_task_top',{reload:rl,h:100});mountAd($('#adTaskNative'),'nat_task',{h:250});injectOnce('sb_task');mountEmpty('#taskGrid [data-adm]')}
+  if(n==='community'){mountStrip();injectOnce('sb_comm');mountEmpty('#commList [data-adm]')}
+  if(n==='profile'){mountAd($('#adProfile'),'bn_profile',{all:true,reload:10,h:100})} /* Monetag + Adsterra banners, reload every 10s */
+}
 function renderAll(){renderHeader();renderVideos();renderMine();renderTasks();renderCommunity();renderProfile();renderWds()}
 function renderHeader(){$('#hBal').textContent=fmt(me.balanceLM,6)}
 
@@ -493,33 +554,53 @@ function renderVideos(){
 }
 
 /* ---- video player ---- */
-let yt=null,vIv=null,bIv=null,vs={running:false,left:0,v:null,done:false};
+let yt=null,vIv=null,bIv=null,vs={running:false,left:0,v:null,done:false,played:0,adOpen:false};
 const loadYT=()=>new Promise(r=>{if(window.YT&&YT.Player)return r();const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';window.onYouTubeIframeAPIReady=()=>r();document.head.appendChild(s)});
 function playVideo(id){
   const v=videos.find(x=>x.id===id);if(!v)return;
-  showAd(async()=>{ /* interstitial always comes first */
-    vs={running:false,left:Number(v.duration)||0,v,done:watched.has(v.id)};
+  showAd('int_video_start',async()=>{ /* interstitial always comes first */
+    vs={running:false,left:Number(v.duration)||0,v,done:watched.has(v.id),played:0,adOpen:false};
     $('#vTitle').textContent=v.title;$('#vReward').textContent='+'+fmt(v.reward,6)+' LM';
     $('#vNote').textContent=vs.done?t('alreadyRewarded'):t('timerNote');
     $('#vTimer').textContent=vs.done?'✓':mmss(vs.left);
+    $('#vClaim').classList.add('hidden');
     openM('mVideo');
     await loadYT();
     yt=new YT.Player('ytBox',{width:'100%',height:'100%',videoId:v.ytId,playerVars:{playsinline:1,rel:0,modestbranding:1},events:{onStateChange:e=>{vs.running=e.data===1}}});
-    renderBanner();clearInterval(bIv);bIv=setInterval(renderBanner,Math.max(15,Number(S.bannerEverySec)||60)*1000);
-    clearInterval(vIv);vIv=setInterval(()=>{if(!vs.running||vs.done)return;vs.left--;$('#vTimer').textContent=mmss(vs.left);if(vs.left<=0)finishVideo()},1000);
+    mountAd($('#vBanner'),'bn_video',{h:100});
+    clearInterval(bIv);bIv=setInterval(()=>mountAd($('#vBanner'),'bn_video',{h:100}),Math.max(15,Number(S.bannerEverySec)||60)*1000);
+    clearInterval(vIv);vIv=setInterval(tickVideo,1000);
   });
 }
-async function finishVideo(){
-  vs.done=true;$('#vTimer').textContent='✓';const v=vs.v,r=Number(v.reward)||0;
-  if(r<=0||watched.has(v.id))return;
-  try{
-    const b=writeBatch(db);
-    b.set(doc(db,'users',uid,'watched',v.id),{at:serverTimestamp()});
-    b.update(doc(db,'users',uid),{balanceLM:increment(r),earnedLM:increment(r),lastVideoId:v.id});
-    await b.commit();$('#vNote').textContent=t('rewarded');toast('+'+fmt(r,6)+' LM');
-  }catch(x){toast(friendly(x))}
+function tickVideo(){
+  if(!vs.running||vs.done||vs.adOpen)return;
+  vs.left--;vs.played++;$('#vTimer').textContent=mmss(vs.left);
+  if(vs.left<=0){finishVideo();return}
+  const ev=Math.max(15,Number(S.videoAdEverySec)||60);
+  if(vs.played%ev===0&&adSlots('int_video_every').length){ /* interstitial every minute while watching */
+    vs.adOpen=true;try{yt.pauseVideo()}catch{}
+    showAd('int_video_every',()=>{vs.adOpen=false;try{yt.playVideo()}catch{}},{gesture:false});
+  }
 }
-function closeVideo(){clearInterval(vIv);clearInterval(bIv);try{yt&&yt.destroy()}catch{}yt=null;$('#ytWrap').innerHTML='<div id="ytBox"></div>';$('#vBanner').innerHTML='';$('#vBanner').classList.add('hidden');$('#mVideo').classList.add('hidden')}
+/* timer finished: user must tap Claim (rewarded interstitial) to get the reward */
+function finishVideo(){
+  vs.done=true;$('#vTimer').textContent='✓';const v=vs.v;
+  if(watched.has(v.id)||!(Number(v.reward)>0))return;
+  const c=$('#vClaim');c.textContent='🎁 '+t('claim')+' (+'+fmt(v.reward,6)+' LM)';c.disabled=false;c.classList.remove('hidden');
+}
+function videoClaim(){
+  const v=vs.v;if(!v||watched.has(v.id))return;const r=Number(v.reward)||0;if(r<=0)return;
+  const c=$('#vClaim');c.disabled=true;
+  showAd('int_claim',async()=>{
+    try{
+      const b=writeBatch(db);
+      b.set(doc(db,'users',uid,'watched',v.id),{at:serverTimestamp()});
+      b.update(doc(db,'users',uid),{balanceLM:increment(r),earnedLM:increment(r),lastVideoId:v.id});
+      await b.commit();$('#vNote').textContent=t('rewarded');c.classList.add('hidden');toast('+'+fmt(r,6)+' LM');
+    }catch(x){toast(friendly(x));c.disabled=false}
+  });
+}
+function closeVideo(){clearInterval(vIv);clearInterval(bIv);try{yt&&yt.destroy()}catch{}yt=null;$('#ytWrap').innerHTML='<div id="ytBox"></div>';$('#vBanner').innerHTML='';$('#vBanner').classList.add('hidden');$('#vClaim').classList.add('hidden');$('#mVideo').classList.add('hidden')}
 
 /* ---- mining ---- */
 function mineState(){
@@ -543,17 +624,24 @@ function mineBtn(){
   const m=mineState();
   if(m.s==='idle'){
     try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch{}
-    showAd(async()=>{try{await updateDoc(doc(db,'users',uid),{miningStart:serverTimestamp()})}catch(x){toast(friendly(x))}});
+    showAd('int_mine_start',async()=>{try{await updateDoc(doc(db,'users',uid),{miningStart:serverTimestamp()})}catch(x){toast(friendly(x))}});
   }else if(m.s==='ready'){
-    showAd(async()=>{try{const r=S.mineReward;await updateDoc(doc(db,'users',uid),{balanceLM:increment(r),earnedLM:increment(r),minedLM:increment(r),miningStart:null});toast(t('claimed'))}catch(x){toast(friendly(x))}});
+    showAd('int_claim',async()=>{try{const r=S.mineReward;await updateDoc(doc(db,'users',uid),{balanceLM:increment(r),earnedLM:increment(r),minedLM:increment(r),miningStart:null});toast(t('claimed'))}catch(x){toast(friendly(x))}});
   }
 }
 
 /* ---- tasks ---- */
+const taskCard=k=>{const st=reqs[k.id];return `<div class="card overflow-hidden" data-act="openTask" data-id="${k.id}">${k.cover?`<img class="thumb" loading="lazy" src="${esc(k.cover)}" alt="">`:`<div class="thumb flex items-center justify-center text-4xl" style="background:linear-gradient(135deg,#7c5cff55,#22d3ee55)">✅</div>`}<div class="p-3"><div class="text-sm font-semibold leading-tight" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(k.title)}</div><div class="flex items-center justify-between mt-2"><span class="badge">${k.currency==='USD'?'$'+fmt(k.reward,4):fmt(k.reward,6)+' LM'}</span>${st?`<span class="badge b-${st}">${esc(t('status_'+st))}</span>`:''}</div></div></div>`};
+let taskSig='';
 function renderTasks(){
   const g=$('#taskGrid');if(!g||!me)return;
+  const midN=adSlots('bn_task_mid').length;
+  const sig=JSON.stringify([tasks.map(k=>[k.id,k.title,k.reward,k.currency,k.cover,reqs[k.id]]),lang,S.i18nCcp,midN]);
+  if(sig===taskSig)return;taskSig=sig;
   if(!tasks.length){g.innerHTML=`<div class="col-span-2 mut text-center py-10">${esc(t('noTasks'))}</div>`;return}
-  g.innerHTML=tasks.map(k=>{const st=reqs[k.id];return `<div class="card overflow-hidden" data-act="openTask" data-id="${k.id}">${k.cover?`<img class="thumb" loading="lazy" src="${esc(k.cover)}" alt="">`:`<div class="thumb flex items-center justify-center text-4xl" style="background:linear-gradient(135deg,#7c5cff55,#22d3ee55)">✅</div>`}<div class="p-3"><div class="text-sm font-semibold leading-tight" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(k.title)}</div><div class="flex items-center justify-between mt-2"><span class="badge">${k.currency==='USD'?'$'+fmt(k.reward,4):fmt(k.reward,6)+' LM'}</span>${st?`<span class="badge b-${st}">${esc(t('status_'+st))}</span>`:''}</div></div></div>`}).join('');
+  const every=4;let out='';
+  tasks.forEach((k,i)=>{out+=taskCard(k);if(midN&&(i+1)%every===0)out+=`<div class="col-span-2" data-adm="bn_task_mid" data-i="${Math.floor(i/every)}"></div>`}); /* banner between tasks */
+  g.innerHTML=out;if(tab==='task')mountEmpty('#taskGrid [data-adm]');
 }
 let curTask=null,tIv=null;
 const tKey=id=>`lm_task_${uid}_${id}`;
@@ -589,9 +677,15 @@ async function taskProof(){
 
 /* ---- community ---- */
 const LINKS=[['website','🌐','Website'],['youtube','▶️','YouTube'],['telegramChannel','📣','Telegram Channel'],['telegramGroup','💬','Telegram Group'],['facebook','📘','Facebook'],['instagram','📸','Instagram'],['tiktok','🎵','TikTok'],['twitter','🐦','X / Twitter']];
+let commSig='';
 function renderCommunity(){
-  const items=LINKS.filter(([k])=>/^https?:\/\//i.test(S.links?.[k]||''));
-  $('#commList').innerHTML=items.length?items.map(([k,ic,n])=>`<a class="card p-4 flex items-center gap-3" href="${esc(S.links[k])}" target="_blank" rel="noopener"><span class="text-2xl">${ic}</span><b class="flex-1">${n}</b><span class="mut">↗</span></a>`).join(''):`<div class="mut text-center py-10">${esc(t('noLinks'))}</div>`;
+  const items=LINKS.filter(([k])=>/^https?:\/\//i.test(S.links?.[k]||'')),midN=adSlots('bn_comm_mid').length;
+  const sig=JSON.stringify([items.map(([k])=>S.links[k]),lang,S.i18nCcp,midN]);
+  if(sig===commSig)return;commSig=sig;
+  if(!items.length){$('#commList').innerHTML=`<div class="mut text-center py-10">${esc(t('noLinks'))}</div>`;return}
+  let out='';
+  items.forEach(([k,ic,n],i)=>{out+=`<a class="card p-4 flex items-center gap-3" href="${esc(S.links[k])}" target="_blank" rel="noopener"><span class="text-2xl">${ic}</span><b class="flex-1">${n}</b><span class="mut">↗</span></a>`;if(midN&&(i+1)%3===0)out+=`<div data-adm="bn_comm_mid" data-i="${Math.floor(i/3)}"></div>`});
+  $('#commList').innerHTML=out;if(tab==='community')mountEmpty('#commList [data-adm]');
 }
 
 /* ---- profile ---- */
@@ -664,7 +758,7 @@ const A={
   lang:()=>{lang=lang==='ccp'?'en':'ccp';localStorage.setItem('lm_lang',lang);applyLang()},
   logout:()=>signOut(auth),
   tab:d=>switchTab(d.t),
-  play:d=>playVideo(d.id),closeVideo,
+  play:d=>playVideo(d.id),closeVideo,videoClaim,
   mineBtn,
   openTask:d=>openTask(d.id),closeTask:()=>{clearInterval(tIv);$('#mTask').classList.add('hidden')},taskOpen,taskProof,
   copyRef:()=>{navigator.clipboard?.writeText($('#pRef').value);toast(t('copied'))},
