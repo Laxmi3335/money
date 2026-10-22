@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="monetag" content="767b805e3f67c9cff1a8b003541aecff">
+<meta name="monetag" content="c8194da8bbd3926d4e4cdf7e178c4af2">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1020">
@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Chakma&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <!-- ============================================================
   AD SCRIPTS (FALLBACK PLACE)
@@ -84,8 +85,8 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
       <button class="btn btn-pri w-full mt-4" type="submit" data-i18n="createAccount"></button>
     </form>
 
-    <div class="flex items-center gap-3 my-4 text-xs mut"><div class="flex-1" style="height:1px;background:var(--line)"></div><span data-i18n="or"></span><div class="flex-1" style="height:1px;background:var(--line)"></div></div>
-    <button type="button" class="btn btn-ghost w-full" data-act="google">
+    <div class="gbit flex items-center gap-3 my-4 text-xs mut"><div class="flex-1" style="height:1px;background:var(--line)"></div><span data-i18n="or"></span><div class="flex-1" style="height:1px;background:var(--line)"></div></div>
+    <button type="button" class="gbit btn btn-ghost w-full" data-act="google">
       <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
       <span data-i18n="google"></span>
     </button>
@@ -135,6 +136,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
   <section id="tab-mine" class="tab hidden px-4 pt-2">
     <h2 class="text-lg font-bold mb-3" data-i18n="mine"></h2>
     <div id="adMineTop" class="mb-3 hidden"></div>
+    <div id="adSponsor" class="mb-3 space-y-2"></div>
     <div class="card p-5 text-center">
       <div class="mut text-sm" data-i18n="miningTitle"></div>
       <div class="relative w-52 h-52 mx-auto my-4">
@@ -184,10 +186,11 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
       <div class="text-xs mut" data-i18n="referralLink"></div>
       <div class="flex gap-2 mt-2"><input id="pRef" readonly class="inp !text-xs"><button class="btn btn-ghost !px-4" data-act="copyRef" data-i18n="copy"></button></div>
       <div class="text-xs mut mt-2"><span data-i18n="referrals"></span>: <b id="pRefCount">0</b></div>
+      <div class="text-xs mut mt-1" id="pRefEarn"></div>
     </div>
     <div class="grid grid-cols-2 gap-3 mt-3">
       <div class="card p-4"><div class="text-xs mut" data-i18n="balanceUSD"></div><div class="text-xl font-extrabold mt-1">$<span id="sUSD">0</span></div></div>
-      <div class="card p-4"><div class="text-xs mut" data-i18n="balanceLM"></div><div class="text-xl font-extrabold mt-1"><span id="sLM">0</span> LM</div></div>
+      <div class="card p-4"><div class="text-xs mut" data-i18n="balanceLM"></div><div class="text-xl font-extrabold mt-1"><span id="sLM">0</span> LM</div><div class="text-xs mut mt-1" id="sLMval"></div></div>
       <div class="card p-4"><div class="text-xs mut" data-i18n="tasksDone"></div><div class="text-xl font-extrabold mt-1" id="sTasks">0</div></div>
       <div class="card p-4"><div class="text-xs mut" data-i18n="miningBal"></div><div class="text-xl font-extrabold mt-1"><span id="sMined">0</span> LM</div></div>
     </div>
@@ -250,7 +253,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
 
 <!-- full screen interstitial (before video / every minute in video / reward claim / mining start) -->
 <div id="ad" class="hidden" style="position:fixed;inset:0;z-index:80;background:#05070f">
-  <div id="adBox" style="position:absolute;inset:0"></div>
+  <div id="adBox" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:auto;padding:56px 8px 8px"></div>
   <button id="adSkip" class="btn btn-pri" style="position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:12px;z-index:2;padding:8px 14px;font-size:13px" disabled></button>
 </div>
 
@@ -280,7 +283,7 @@ const hms=s=>{s=Math.max(0,Math.floor(s));return [Math.floor(s/3600),Math.floor(
 
 /* ====== i18n (English + Chakma) ====== */
 const EN={tagline:'Watch, mine & complete tasks to earn LM Coin',login:'Login',register:'Register',email:'Email',password:'Password',name:'Name',country:'Country',refCode:'Referral code (optional)',createAccount:'Create account',signIn:'Sign in',forgot:'Forgot password?',logout:'Logout',
-or:'or',adBreak:'Ad break',adTap:'Tap to continue',google:'Continue with Google',completeTitle:'Complete your profile',continue:'Continue',cancel:'Cancel',
+or:'or',adBreak:'Ad break',adTap:'Tap to continue',sponsored:'Sponsored',refEarned:'Referral commission',google:'Continue with Google',completeTitle:'Complete your profile',continue:'Continue',cancel:'Cancel',
 video:'Video',mine:'Mine',task:'Task',community:'Community',profile:'Profile',
 noVideos:'No videos yet',play:'Play',reward:'Reward',adLabel:'Advertisement',skipIn:'Skip in',skip:'Skip',watchTimer:'Watch timer',timerNote:'Timer runs only while the video is playing.',rewarded:'Reward added to your balance!',alreadyRewarded:'You already received the reward for this video.',
 miningTitle:'LM Coin mining',startMining:'Start mining',mining:'Mining…',claim:'Claim reward',rate:'Mining rate',minedTotal:'Total mined',idle:'Ready to start',running:'Mining in progress',ready:'Mining complete! Claim now',per:'per',hours:'hours',mineDone:'⛏️ Mining finished – claim your LM!',claimed:'Mining reward claimed!',
@@ -295,7 +298,7 @@ const CCP={video:'𑄞𑄨𑄓𑄨𑄃𑄱',mine:'𑄞𑄣',task:'𑄦𑄟𑄴',
 if(location.search.includes('keys=1')){document.body.innerHTML='<p style="padding:10px;font:14px sans-serif">Copy this JSON, translate the values into Chakma, and paste it in admin.html → Settings → Chakma translations.</p><textarea style="width:96%;height:80vh;margin:2%;font:13px monospace">'+JSON.stringify(EN,null,2)+'</textarea>';throw 0}
 
 let lang=localStorage.getItem('lm_lang')||'en';
-const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,bannerEverySec:60,videoAdEverySec:60,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',links:{},adSlots:[],i18nCcp:{},
+const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,bannerEverySec:60,videoAdEverySec:60,refPercent:0,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',links:{},adSlots:[],i18nCcp:{},
 payments:{bkash:{name:'bKash',scope:'BD',enabled:true,minUSD:1,hint:'bKash number'},nagad:{name:'Nagad',scope:'BD',enabled:true,minUSD:1,hint:'Nagad number'},binance:{name:'Binance Pay',scope:'INTL',enabled:true,minUSD:5,hint:'Binance Pay ID'},usdt:{name:'USDT (TRC20/BEP20)',scope:'INTL',enabled:true,minUSD:5,hint:'Wallet address + network'},nsave:{name:'Nsave',scope:'INTL',enabled:true,minUSD:5,hint:'Nsave account'}}};
 let S=JSON.parse(JSON.stringify(DEF));
 const t=k=>lang==='ccp'?(S.i18nCcp?.[k]||CCP[k]||EN[k]||k):(EN[k]||k);
@@ -310,93 +313,135 @@ function injectHTML(el,html,keep){if(!keep)el.innerHTML='';const tmp=document.cr
 const openM=id=>$('#'+id).classList.remove('hidden');
 function closeAll(){$$('.modal').forEach(m=>m.classList.add('hidden'))}
 
+/* ====== TELEGRAM / ENVIRONMENT ====== */
+const TG=window.Telegram?.WebApp||null;
+const inTG=!!(TG&&TG.initData);
+if(TG){try{TG.ready();TG.expand()}catch{}}
+if(inTG)$$('.gbit').forEach(e=>e.classList.add('hidden')); /* Google sign-in is blocked inside Telegram's WebView */
+/* external links: Telegram API inside Mini App, normal window elsewhere */
+function openExternal(url){
+  url=String(url||'').trim();if(!/^https?:\/\//i.test(url))return;
+  try{if(inTG){if(/^https?:\/\/(t|telegram)\.me\//i.test(url)&&TG.openTelegramLink)TG.openTelegramLink(url);else TG.openLink(url);return}}catch{}
+  const w=window.open(url,'_blank','noopener');if(!w)location.href=url;
+}
+/* referral commission (percent is set in admin > Settings) */
+const refPct=()=>Math.max(0,Math.min(50,Number(S.refPercent)||0));
+const refCut=r=>{const p=refPct();return(me&&me.referredBy&&p>0)?Math.floor((Number(r)||0)*p/100*1e8)/1e8:0};
+
 /* ====== ADS ======
-   Every ad code is added in admin.html > Settings > Ad placements together with a PLACEMENT
-   (where it shows). No cards / borders / boxes: banners sit inline, interstitials are full screen.
-   Code types:
-     - Direct link URL (https://...)  -> opens in a new tab when the user taps (interstitial / popunder)
-     - Script / HTML                  -> runs in a clean transparent sandboxed iframe (full screen for interstitials)
-     - placement "global" and social bars (sb_*) -> script is added to the page itself (floating ads)          */
-const adSlots=p=>(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place===p&&String(n.code||'').trim());
+   POLICY GUARDS built into this code (Monetag / AdsGram / network rules):
+   - Inside Telegram Mini App ONLY the Monetag Telegram SDK and AdsGram SDK run. No web scripts, no popunders,
+     no auto redirects, no background windows (Monetag TMA requirements).
+   - In a browser, web ad scripts are placed directly in the page (official way) - never hidden or sandboxed.
+   - Full screen ads are skippable, at least 60 s apart for "every N sec" ads and at least 30 s between any two.
+   - Rewards never depend on ad completion. Ads only appear at natural breaks (start, claim, between pages).
+   - External links open only when the user taps a clearly labelled "Sponsored" button.            */
+const TYPES=['html','monetag_tg','adsgram','link'];
 const isUrl=c=>/^https?:\/\/\S+$/i.test(String(c||'').trim());
-const adRot={},adTimers=[],injected=new Set();let adIv=null;
-const rot=(k,list)=>{const i=adRot[k]||0;adRot[k]=i+1;return list[i%list.length]};
 function normAds(d){
-  if(Array.isArray(d.adSlots))return d.adSlots.map(n=>({name:n?.name||'',place:String(n?.place||'global'),enabled:n?.enabled!==false,h:Number(n?.h)||0,code:String(n?.code||'')}));
+  const clean=n=>{const code=String(n?.code||'').trim();const type=TYPES.includes(n?.type)?n.type:(isUrl(code)?'link':'html');let place=String(n?.place||'global');if(place==='popunder')place='sponsor';return{name:n?.name||'',type,place,enabled:n?.enabled!==false,h:Number(n?.h)||0,code}};
+  if(Array.isArray(d.adSlots))return d.adSlots.map(clean);
   const o=[]; /* migrate older settings formats */
-  (d.adNets||[]).forEach(n=>{if(n)o.push({name:n.name||'',place:n.mode==='interstitial'?'int_video_start':n.mode==='banner'?'bn_video':'global',enabled:n.enabled!==false,h:Number(n.h)||0,code:String(n.code||'')})});
-  if(!d.adNets){const a=d.ads||{};if(a.interstitial)o.push({name:'Monetag',place:'global',enabled:true,h:0,code:a.interstitial});if(a.banner)o.push({name:'Banner',place:'bn_video',enabled:true,h:100,code:a.banner})}
+  (d.adNets||[]).forEach(n=>{if(n)o.push(clean({name:n.name,place:n.mode==='interstitial'?'int_video_start':n.mode==='banner'?'bn_video':'global',enabled:n.enabled,h:n.h,code:n.code}))});
+  if(!d.adNets){const a=d.ads||{};if(a.interstitial)o.push(clean({name:'Monetag',place:'global',code:a.interstitial}));if(a.banner)o.push(clean({name:'Banner',place:'bn_video',h:100,code:a.banner}))}
   return o;
 }
-function adFrame(code,h,full){
-  const f=document.createElement('iframe');
-  f.setAttribute('sandbox','allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms allow-top-navigation-by-user-activation');
-  f.setAttribute('scrolling','no');
-  f.style.cssText=full?'position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent':'width:100%;height:'+(Number(h)||100)+'px;border:0;display:block;background:transparent';
-  const css=full?'html,body{margin:0;height:100%;background:#05070f;display:flex;align-items:center;justify-content:center;overflow:hidden}':'html,body{margin:0;padding:0;background:transparent;overflow:hidden;display:flex;justify-content:center}';
-  f.srcdoc='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body>'+code+'</body></html>';
-  return f;
-}
+const slotsOf=(p,types)=>(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place===p&&n.code&&types.includes(n.type));
+const webSlots=p=>inTG?[]:slotsOf(p,['html']);
+const tgSlots=p=>inTG?slotsOf(p,['monetag_tg','adsgram']):[];
+const adSlots=p=>inTG?tgSlots(p):webSlots(p);
+const adRot={},adTimers=[],injected=new Set();let adIv=null,lastFull=0;
+const rot=(k,list)=>{const i=adRot[k]||0;adRot[k]=i+1;return list[i%list.length]};
 const clearAdTimers=()=>adTimers.splice(0).forEach(clearInterval);
-/* inline ad (banner / native) inside element el. o: {all:show every slot stacked, reload:sec, h:default height, idx:slot index} */
+/* inline banner / native: the network's own code is put straight into the page (no frame, no box) */
 function mountAd(el,place,o={}){
-  if(!el)return;const list=adSlots(place).filter(n=>!isUrl(n.code));
+  if(!el)return;const list=webSlots(place);
   if(!list.length){el.innerHTML='';el.classList.add('hidden');return}
   const draw=()=>{el.innerHTML='';
     const pick=o.all?list:[o.idx!=null?list[o.idx%list.length]:rot(place+(el.id||''),list)];
-    pick.forEach(n=>el.appendChild(adFrame(n.code,Number(n.h)||o.h||100)));
+    pick.forEach(n=>{const w=document.createElement('div');w.style.cssText='text-align:center;min-height:'+(Number(n.h)||o.h||100)+'px';el.appendChild(w);injectHTML(w,n.code)});
     el.classList.remove('hidden')};
   draw();
-  if(o.reload>0)adTimers.push(setInterval(draw,o.reload*1000));
+  if(o.reload>0)adTimers.push(setInterval(draw,Math.max(30,o.reload)*1000));
 }
 function mountEmpty(sel){$$(sel).forEach(el=>{if(!el.childNodes.length)mountAd(el,el.dataset.adm,{h:el.dataset.adm.startsWith('nat')?250:100,idx:Number(el.dataset.i)||0})})}
-/* page-level scripts (global, social bars): added to the page once */
-function injectOnce(place){
-  if(!uid)return;
-  adSlots(place).forEach(n=>{const k=place+'|'+n.code;if(injected.has(k)||isUrl(n.code))return;injected.add(k);try{injectHTML(document.body,n.code,true)}catch(x){console.error('ad',n.name,x)}});
-}
-const loadGlobalAds=()=>injectOnce('global');
-/* popunder: once a day per section (runs on the tab tap) */
-function popunder(sec){
-  const list=adSlots('popunder');if(!list.length)return;
-  const k='lm_pop_'+sec,day=new Date().toLocaleDateString('en-CA');
-  if(localStorage.getItem(k)===day)return;
-  localStorage.setItem(k,day);
-  const n=rot('pop'+sec,list);
-  if(isUrl(n.code)){const w=window.open(n.code.trim(),'_blank');try{w&&w.blur();window.focus()}catch{}}
-  else{try{injectHTML(document.body,n.code,true)}catch(x){console.error(x)}}
-}
-/* full-screen interstitial. o.gesture=false when it is not caused by a tap (e.g. every-minute ad during video) */
-function showAd(place,cb,o={}){
-  const list=adSlots(place);
-  if(!list.length){cb&&cb();return}
-  const gesture=o.gesture!==false,n=rot('show'+place,list),box=$('#adBox'),b=$('#adSkip'),ov=$('#ad');
-  const close=()=>{clearInterval(adIv);ov.classList.add('hidden');box.innerHTML='';cb&&cb()};
-  if(isUrl(n.code)){
-    if(gesture){window.open(n.code.trim(),'_blank');cb&&cb();return} /* direct link: opens on the tap, then continue */
-    ov.classList.remove('hidden');b.classList.add('hidden');
-    box.innerHTML='<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px"><div class="mut text-sm">'+esc(t('adBreak'))+'</div><button class="btn btn-pri" id="adGo">'+esc(t('adTap'))+' ▶</button></div>';
-    $('#adGo').onclick=()=>{window.open(n.code.trim(),'_blank');close()};
-    return;
-  }
-  ov.classList.remove('hidden');b.classList.remove('hidden');box.innerHTML='';box.appendChild(adFrame(n.code,0,true));
-  let k=Math.max(1,Number(S.adSkipSec)||3);b.disabled=true;b.textContent=t('skipIn')+' '+k;
-  clearInterval(adIv);
-  adIv=setInterval(()=>{k--;if(k>0)b.textContent=t('skipIn')+' '+k;else{clearInterval(adIv);b.disabled=false;b.textContent=t('skip')+' ▶'}},1000);
-  b.onclick=()=>{if(!b.disabled)close()};
-}
 /* community: moving strip of up to 5 network ads */
 function mountStrip(){
-  const el=$('#adStrip'),list=adSlots('strip_comm').filter(n=>!isUrl(n.code)).slice(0,5);
+  const el=$('#adStrip'),list=webSlots('strip_comm').slice(0,5);
   if(!list.length){el.innerHTML='';return}
-  const sig=list.map(n=>n.code).join('|');
-  if(el.dataset.sig!==sig||!$('#stripRow')){
-    el.dataset.sig=sig;el.innerHTML='<div id="stripRow" style="position:relative;display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none"></div>';
-    const r=$('#stripRow');
-    list.forEach(n=>{const w=document.createElement('div');w.style.cssText='flex:0 0 100%;scroll-snap-align:center';w.appendChild(adFrame(n.code,Number(n.h)||100));r.appendChild(w)});
+  el.innerHTML='<div id="stripRow" style="display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none"></div>';
+  const row=$('#stripRow');
+  list.forEach(n=>{const w=document.createElement('div');w.style.cssText='flex:0 0 100%;scroll-snap-align:center;text-align:center;min-height:'+(Number(n.h)||100)+'px';row.appendChild(w);injectHTML(w,n.code)});
+  let i=0;adTimers.push(setInterval(()=>{const c=row.children.length;if(c<2||!row.isConnected)return;i=(i+1)%c;row.scrollTo({left:row.children[i].offsetLeft,behavior:'smooth'})},4000));
+}
+/* floating page scripts (social bar / global): added to the page once (browser only) */
+function injectOnce(place){
+  if(!uid)return;
+  webSlots(place).forEach(n=>{const k=place+'|'+n.code;if(injected.has(k))return;injected.add(k);try{injectHTML(document.body,n.code,true)}catch(x){console.error('ad',n.name,x)}});
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+/* Monetag Telegram SDK: paste the dashboard script tag; the function name comes from data-sdk="show_XXXX" */
+async function monetagFn(n){
+  const m=String(n.code).match(/data-sdk=["']?([A-Za-z0-9_]+)/);if(!m)throw new Error('Monetag tag has no data-sdk');
+  const name=m[1];
+  if(typeof window[name]!=='function'){
+    if(!injected.has('m|'+name)){injected.add('m|'+name);injectHTML(document.body,n.code,true)}
+    for(let i=0;i<50&&typeof window[name]!=='function';i++)await sleep(100);
   }
-  const row=$('#stripRow');let i=0;
-  adTimers.push(setInterval(()=>{const c=row.children.length;if(c<2)return;i=(i+1)%c;row.scrollTo({left:row.children[i].offsetLeft,behavior:'smooth'})},4000));
+  if(typeof window[name]!=='function')throw new Error('Monetag SDK not loaded');
+  return window[name];
+}
+const agCtl={};
+async function adsgramCtl(n){
+  const id=String(n.code).trim().replace(/[^A-Za-z0-9_-]/g,'');if(!id)throw new Error('AdsGram blockId missing');
+  if(!window.Adsgram){
+    if(!injected.has('adsgram')){injected.add('adsgram');const s=document.createElement('script');s.src='https://sad.adsgram.ai/js/sad.min.js';s.async=true;document.head.appendChild(s)}
+    for(let i=0;i<50&&!window.Adsgram;i++)await sleep(100);
+  }
+  if(!window.Adsgram)throw new Error('AdsGram SDK not loaded');
+  return agCtl[id]=agCtl[id]||window.Adsgram.init({blockId:id});
+}
+async function tgAd(list,place){
+  const n=rot('tg'+place,list);
+  try{
+    if(n.type==='monetag_tg'){const fn=await monetagFn(n);await fn({ymid:String(uid||''),requestVar:place})}
+    else if(n.type==='adsgram'){const c=await adsgramCtl(n);await c.show()}
+  }catch(x){console.warn('ad skipped:',x&&x.message||x)} /* ad not available: just continue, rewards never depend on ads */
+}
+const loadGlobalAds=()=>{
+  if(!uid)return;
+  if(inTG){(S.adSlots||[]).filter(n=>n.enabled&&n.type==='monetag_tg').forEach(n=>monetagFn(n).catch(()=>{}));return}
+  injectOnce('global');
+};
+/* browser full screen interstitial (banner / HTML ad in an overlay, skippable) */
+function showWebAd(list,cb){
+  const n=rot('web',list),box=$('#adBox'),b=$('#adSkip'),ov=$('#ad');
+  clearInterval(adIv);box.innerHTML='';ov.classList.remove('hidden');
+  const w=document.createElement('div');w.style.cssText='max-width:100%;max-height:100%;overflow:auto;text-align:center';box.appendChild(w);injectHTML(w,n.code);
+  let k=Math.max(3,Number(S.adSkipSec)||3);b.disabled=true;b.textContent=t('skipIn')+' '+k;
+  adIv=setInterval(()=>{k--;if(k>0)b.textContent=t('skipIn')+' '+k;else{clearInterval(adIv);b.disabled=false;b.textContent=t('skip')+' ▶'}},1000);
+  b.onclick=()=>{if(b.disabled)return;clearInterval(adIv);ov.classList.add('hidden');box.innerHTML='';cb&&cb()};
+}
+/* full screen ad at a natural break. cb always runs afterwards (also when no ad is available) */
+function showAd(place,cb){
+  const list=adSlots(place);
+  if(!list.length||Date.now()-lastFull<30000){cb&&cb();return}
+  lastFull=Date.now();
+  if(inTG){tgAd(list,place).finally(()=>{lastFull=Date.now();cb&&cb()});return}
+  showWebAd(list,cb);
+}
+/* "Sponsored" buttons: the user taps on purpose, nothing opens automatically */
+function mountSponsor(){
+  const el=$('#adSponsor');if(!el)return;
+  const l=(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place==='sponsor'&&n.type==='link'&&isUrl(n.code));
+  el.innerHTML=l.map(n=>`<button class="btn btn-ghost w-full" data-act="sponsor" data-url="${esc(n.code)}">🎁 ${esc(n.name||t('sponsored'))} <span class="mut text-xs">· ${esc(t('sponsored'))}</span></button>`).join('');
+}
+function enterTab(n){
+  const rl=Math.max(30,Number(S.bannerEverySec)||60);
+  if(n==='mine'){mountAd($('#adMineTop'),'bn_mine',{reload:rl,h:100});mountSponsor();injectOnce('sb_mine')}
+  if(n==='task'){mountAd($('#adTaskTop'),'bn_task_top',{reload:rl,h:100});mountAd($('#adTaskNative'),'nat_task',{h:250});injectOnce('sb_task');mountEmpty('#taskGrid [data-adm]')}
+  if(n==='community'){mountStrip();injectOnce('sb_comm');mountEmpty('#commList [data-adm]')}
+  if(n==='profile'){mountAd($('#adProfile'),'bn_profile',{all:true,reload:rl,h:100})}
 }
 
 /* ====== language ====== */
@@ -537,12 +582,7 @@ onSnapshot(doc(db,'settings','main'),s=>{
 function switchTab(n){
   tab=n;$$('.tab').forEach(s=>s.classList.toggle('hidden',s.id!=='tab-'+n));$$('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===n));window.scrollTo(0,0);
   if(n==='mine')$('#mineDot').classList.add('hidden');
-  clearAdTimers();popunder(n); /* popunder: once a day per section */
-  const rl=Math.max(10,Number(S.bannerEverySec)||60);
-  if(n==='mine'){mountAd($('#adMineTop'),'bn_mine',{reload:rl,h:100});injectOnce('sb_mine')}
-  if(n==='task'){mountAd($('#adTaskTop'),'bn_task_top',{reload:rl,h:100});mountAd($('#adTaskNative'),'nat_task',{h:250});injectOnce('sb_task');mountEmpty('#taskGrid [data-adm]')}
-  if(n==='community'){mountStrip();injectOnce('sb_comm');mountEmpty('#commList [data-adm]')}
-  if(n==='profile'){mountAd($('#adProfile'),'bn_profile',{all:true,reload:10,h:100})} /* Monetag + Adsterra banners, reload every 10s */
+  clearAdTimers();enterTab(n);
 }
 function renderAll(){renderHeader();renderVideos();renderMine();renderTasks();renderCommunity();renderProfile();renderWds()}
 function renderHeader(){$('#hBal').textContent=fmt(me.balanceLM,6)}
@@ -576,7 +616,7 @@ function tickVideo(){
   if(!vs.running||vs.done||vs.adOpen)return;
   vs.left--;vs.played++;$('#vTimer').textContent=mmss(vs.left);
   if(vs.left<=0){finishVideo();return}
-  const ev=Math.max(15,Number(S.videoAdEverySec)||60);
+  const ev=Math.max(60,Number(S.videoAdEverySec)||60);
   if(vs.played%ev===0&&adSlots('int_video_every').length){ /* interstitial every minute while watching */
     vs.adOpen=true;try{yt.pauseVideo()}catch{}
     showAd('int_video_every',()=>{vs.adOpen=false;try{yt.playVideo()}catch{}},{gesture:false});
@@ -592,11 +632,15 @@ function videoClaim(){
   const v=vs.v;if(!v||watched.has(v.id))return;const r=Number(v.reward)||0;if(r<=0)return;
   const c=$('#vClaim');c.disabled=true;
   showAd('int_claim',async()=>{
-    try{
-      const b=writeBatch(db);
+    const cut=refCut(r);
+    const mk=withRef=>{const b=writeBatch(db);
       b.set(doc(db,'users',uid,'watched',v.id),{at:serverTimestamp()});
       b.update(doc(db,'users',uid),{balanceLM:increment(r),earnedLM:increment(r),lastVideoId:v.id});
-      await b.commit();$('#vNote').textContent=t('rewarded');c.classList.add('hidden');toast('+'+fmt(r,6)+' LM');
+      if(withRef&&cut>0)b.update(doc(db,'users',me.referredBy),{balanceLM:increment(cut),refEarnedLM:increment(cut)});
+      return b};
+    try{
+      try{await mk(true).commit()}catch(x){if(cut>0)await mk(false).commit();else throw x}
+      $('#vNote').textContent=t('rewarded');c.classList.add('hidden');toast('+'+fmt(r,6)+' LM');
     }catch(x){toast(friendly(x));c.disabled=false}
   });
 }
@@ -620,13 +664,24 @@ function renderMine(){
   lastMine=m.s;
 }
 setInterval(()=>{if(me&&!me.banned)renderMine()},1000);
+async function claimMine(){
+  const r=Number(S.mineReward)||0,cut=refCut(r);
+  const mk=withRef=>{const b=writeBatch(db);
+    b.update(doc(db,'users',uid),{balanceLM:increment(r),earnedLM:increment(r),minedLM:increment(r),miningStart:null});
+    if(withRef&&cut>0)b.update(doc(db,'users',me.referredBy),{balanceLM:increment(cut),refEarnedLM:increment(cut)});
+    return b};
+  try{
+    try{await mk(true).commit()}catch(x){if(cut>0)await mk(false).commit();else throw x}
+    toast(t('claimed'));
+  }catch(x){toast(friendly(x))}
+}
 function mineBtn(){
   const m=mineState();
   if(m.s==='idle'){
     try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch{}
     showAd('int_mine_start',async()=>{try{await updateDoc(doc(db,'users',uid),{miningStart:serverTimestamp()})}catch(x){toast(friendly(x))}});
   }else if(m.s==='ready'){
-    showAd('int_claim',async()=>{try{const r=S.mineReward;await updateDoc(doc(db,'users',uid),{balanceLM:increment(r),earnedLM:increment(r),minedLM:increment(r),miningStart:null});toast(t('claimed'))}catch(x){toast(friendly(x))}});
+    showAd('int_claim',claimMine);
   }
 }
 
@@ -662,7 +717,7 @@ function openTask(id){curTask=tasks.find(x=>x.id===id);if(!curTask)return;render
 function taskOpen(){
   const k=curTask;if(!k||!/^https?:\/\//i.test(k.link||''))return toast('Invalid link');
   if(!localStorage.getItem(tKey(k.id)))localStorage.setItem(tKey(k.id),Date.now());
-  window.open(k.link,'_blank','noopener');renderTaskModal();
+  openExternal(k.link);renderTaskModal();
 }
 async function taskProof(){
   const k=curTask;if(!k||reqs[k.id])return;
@@ -671,7 +726,7 @@ async function taskProof(){
     await setDoc(doc(db,'task_requests',rid),{uid,taskId:k.id,taskTitle:k.title,email:me.email,name:me.name,status:'pending',createdAt:serverTimestamp()});
     toast(t('proofSent'));
     const h=(S.proofTelegram||S.supportTelegram||'').replace(/^@|^https?:\/\/t\.me\//,'');
-    if(h)window.open('https://t.me/'+encodeURIComponent(h)+'?text='+encodeURIComponent(`Task proof\nTask: ${k.title}\nEmail: ${me.email}\nRef: ${rid}`),'_blank','noopener');
+    if(h)openExternal('https://t.me/'+encodeURIComponent(h)+'?text='+encodeURIComponent(`Task proof\nTask: ${k.title}\nEmail: ${me.email}\nRef: ${rid}`));
   }catch(x){toast(friendly(x))}
 }
 
@@ -694,6 +749,9 @@ function renderProfile(){
   $('#pAvatar').innerHTML=av;$('#pName').textContent=me.name;$('#pEmail').textContent=me.email;$('#pCountry').textContent=flag(me.country)+' '+me.country;
   $('#pRef').value=location.origin+location.pathname+'?ref='+me.refCode;
   $('#sUSD').textContent=fmt(me.balanceUSD,4);$('#sLM').textContent=fmt(me.balanceLM,8);$('#sTasks').textContent=me.tasksDone||0;$('#sMined').textContent=fmt(me.minedLM,8);
+  /* LM value in USD and BDT, calculated from the admin rates */
+  $('#sLMval').textContent='≈ $'+fmt(me.balanceLM*S.lmRateUSD,4)+' · ৳'+fmt(me.balanceLM*S.lmRateUSD*S.bdtPerUSD,2);
+  $('#pRefEarn').textContent=refPct()>0?(t('refEarned')+' ('+refPct()+'%): '+fmt(me.refEarnedLM,8)+' LM'+(me.refEarnedUSD?' · $'+fmt(me.refEarnedUSD,4):'')):'';
   const b=[];
   if(S.supportTelegram)b.push(`<a class="btn btn-ghost" target="_blank" rel="noopener" href="https://t.me/${encodeURIComponent(S.supportTelegram.replace(/^@/,''))}">✈️ ${esc(t('support'))} — Telegram</a>`);
   if(S.supportWhatsApp)b.push(`<a class="btn btn-ghost" target="_blank" rel="noopener" href="https://wa.me/${S.supportWhatsApp.replace(/\D/g,'')}">💬 ${esc(t('support'))} — WhatsApp</a>`);
@@ -764,9 +822,12 @@ const A={
   copyRef:()=>{navigator.clipboard?.writeText($('#pRef').value);toast(t('copied'))},
   photo:async()=>{const u=prompt('https://… image URL');if(!u)return;if(!/^https:\/\//.test(u))return toast('HTTPS only');try{await updateDoc(doc(db,'users',uid),{photo:u})}catch(x){toast(friendly(x))}},
   openExchange,doExchange,xMax:()=>{$('#xAmt').value=fmt(me.balanceLM,8);calcExch()},
-  openWithdraw,doWithdraw,closeAll
+  openWithdraw,doWithdraw,closeAll,sponsor:d=>openExternal(d.url)
 };
-document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const f=A[el.dataset.act];if(f)f(el.dataset,el)});
+document.addEventListener('click',e=>{
+  const a=e.target.closest('a[href]');
+  if(a&&inTG&&/^https?:/i.test(a.href)){e.preventDefault();openExternal(a.href);return} /* links inside Telegram */
+  const el=e.target.closest('[data-act]');if(!el)return;const f=A[el.dataset.act];if(f)f(el.dataset,el)});
 
 applyLang();
 </script>
