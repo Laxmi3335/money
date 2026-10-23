@@ -55,6 +55,9 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
 .spb{position:absolute;top:8px;left:8px;z-index:3;background:#000a;color:#fbbf24}
 .spmute{position:absolute;bottom:8px;right:8px;z-index:4;background:#000c;color:#fff;border:0;border-radius:99px;padding:6px 12px;font-size:13px;font-weight:700}
 .spplay{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font-size:38px;color:#fff;text-shadow:0 2px 12px #000}
+.spfb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:42px;background:linear-gradient(135deg,#7c5cff55,#22d3ee55)}
+.chip{flex:0 0 auto;padding:7px 14px;border-radius:99px;font-size:13px;font-weight:600;background:var(--card2);color:var(--mut);border:1px solid var(--line)}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
 </style>
 </head>
 <body>
@@ -126,7 +129,9 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
 
   <section id="tab-video" class="tab px-4 pt-2">
     <h2 class="text-lg font-bold mb-3" data-i18n="video"></h2>
+    <div id="vCats" class="flex gap-2 overflow-x-auto pb-2 mb-2 hidden" style="scrollbar-width:none"></div>
     <div id="videoGrid" class="grid grid-cols-2 gap-3"></div>
+    <button id="vMore" class="btn btn-ghost w-full mt-3 hidden" data-act="vMore"></button>
   </section>
 
   <section id="tab-mine" class="tab hidden px-4 pt-2">
@@ -159,6 +164,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
     <h2 class="text-lg font-bold mb-3" data-i18n="task"></h2>
     <div id="adTaskTop" class="mb-3 hidden"></div>
     <div id="taskGrid" class="grid grid-cols-2 gap-3"></div>
+    <button id="tMore" class="btn btn-ghost w-full mt-3 hidden" data-act="tMore"></button>
     <div id="adTaskNative" class="mt-3 hidden"></div>
   </section>
 
@@ -193,6 +199,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
       <button class="btn btn-pri" data-act="openExchange">⇄ <span data-i18n="exchange"></span></button>
       <button class="btn btn-green" data-act="openWithdraw">💸 <span data-i18n="withdraw"></span></button>
     </div>
+    <div id="spProfile" class="mt-3 hidden"></div>
     <div class="card p-4 mt-3"><div class="font-bold mb-2" data-i18n="history"></div><div id="wdList" class="space-y-2 text-sm"></div></div>
     <div id="supportBtns" class="grid gap-3 mt-3"></div>
     <button class="btn btn-ghost w-full mt-3" data-act="logout" data-i18n="logout"></button>
@@ -288,12 +295,12 @@ changePhoto:'Change photo (image URL)',referralLink:'Your referral link',copy:'C
 exchangeRate:'Rate',feeLabel:'Fee',minLabel:'Minimum',amountLM:'Amount (LM)',available:'Available',max:'Max',fee:'Fee',youGet:'You get',confirm:'Confirm',exchanged:'Exchange successful!',
 method:'Payment method',account:'Account / wallet address',amountUSD:'Amount (USD)',minimum:'Minimum',submit:'Submit request',noMethods:'No payment methods available for your country.',wdSent:'Withdrawal request submitted!',insufficient:'Insufficient balance',
 bannedTitle:'Account suspended',bannedMsg:'Your account has been banned. Contact support.',deviceUsed:'This device already has an account.',
-close:'Close',saved:'Saved'};
+close:'Close',saved:'Saved',loadMore:'Load more',allCat:'All'};
 const CCP={video:'𑄞𑄨𑄓𑄨𑄃𑄱',mine:'𑄞𑄣',task:'𑄦𑄟𑄴',community:'𑄡𑄱𑄘',profile:'𑄟𑄪𑄃𑄭',langName:'𑄌𑄇𑄴𑄟𑄧'};
 if(location.search.includes('keys=1')){document.body.innerHTML='<p style="padding:10px;font:14px sans-serif">Copy this JSON, translate the values into Chakma, and paste it in admin.html → Settings → Chakma translations.</p><textarea style="width:96%;height:80vh;margin:2%;font:13px monospace">'+JSON.stringify(EN,null,2)+'</textarea>';throw 0}
 
 let lang=localStorage.getItem('lm_lang')||'en';
-const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,bannerEverySec:60,videoAdEverySec:60,refPercent:0,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',links:{},adSlots:[],sponsors:[],sponsorEveryVideos:6,sponsorEveryTasks:5,adsgramDebug:false,i18nCcp:{},
+const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,adAutoSec:10,bannerEverySec:60,videoAdEverySec:60,refPercent:0,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',links:{},adSlots:[],sponsors:[],sponsorEveryVideos:6,sponsorEveryTasks:5,adsgramDebug:false,admobTest:false,i18nCcp:{},
 payments:{bkash:{name:'bKash',scope:'BD',enabled:true,minUSD:1,hint:'bKash number'},nagad:{name:'Nagad',scope:'BD',enabled:true,minUSD:1,hint:'Nagad number'},binance:{name:'Binance Pay',scope:'INTL',enabled:true,minUSD:5,hint:'Binance Pay ID'},usdt:{name:'USDT (TRC20/BEP20)',scope:'INTL',enabled:true,minUSD:5,hint:'Wallet address + network'},nsave:{name:'Nsave',scope:'INTL',enabled:true,minUSD:5,hint:'Nsave account'}}};
 let S=JSON.parse(JSON.stringify(DEF));
 const t=k=>lang==='ccp'?(S.i18nCcp?.[k]||CCP[k]||EN[k]||k):(EN[k]||k);
@@ -312,8 +319,11 @@ function closeAll(){$$('.modal').forEach(m=>m.classList.add('hidden'))}
 /* ====== TELEGRAM ====== */
 const TG=window.Telegram?.WebApp||null;
 const inTG=!!(TG&&TG.initData);
+/* platform: tg = Telegram bot mini app, apk = Android app (Capacitor / WebView wrapper), web = normal browser */
+const IS_APK=!inTG&&!!((window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform())||window.LMNative||/LMCoinApp/i.test(navigator.userAgent));
+const PLAT=inTG?'tg':IS_APK?'apk':'web';
 if(TG){try{TG.ready();TG.expand()}catch{}}
-if(inTG)$$('.gbit').forEach(e=>e.classList.add('hidden'));
+if(inTG||IS_APK)$$('.gbit').forEach(e=>e.classList.add('hidden')); /* Google blocks sign-in inside embedded WebViews */
 function openExternal(url){
   url=String(url||'').trim();if(!/^https?:\/\//i.test(url))return;
   try{if(inTG){if(/^https?:\/\/(t|telegram)\.me\//i.test(url)&&TG.openTelegramLink)TG.openTelegramLink(url);else TG.openLink(url);return}}catch{}
@@ -325,29 +335,33 @@ const refCut=r=>{const p=refPct();return(me&&me.referredBy&&p>0)?Math.floor((Num
 /* ====== NETWORK ADS ======
    Telegram Mini App: only Monetag TG SDK + AdsGram. Browser: web ad tags (rendered in iframes).
    Add ?adtest=1 to the URL to see why an ad did not show (toast) and to force AdsGram test ads. */
-const TYPES=['html','monetag_tg','adsgram','link'];
+const TYPES=['html','monetag_tg','adsgram','link','popunder','admob_int','admob_rew','adsense'];
 const isUrl=c=>/^https?:\/\/\S+$/i.test(String(c||'').trim());
 function normAds(d){
-  const clean=n=>{const code=String(n?.code||'').trim();const type=TYPES.includes(n?.type)?n.type:(isUrl(code)?'link':'html');let place=String(n?.place||'global');if(place==='popunder')place='sponsor';return{name:n?.name||'',type,place,enabled:n?.enabled!==false,h:Number(n?.h)||0,code}};
+  const clean=n=>{const code=String(n?.code||'').trim();const type=TYPES.includes(n?.type)?n.type:(isUrl(code)?'link':'html');let place=String(n?.place||'global');if(place==='popunder')place='sponsor';return{name:n?.name||'',type,place,enabled:n?.enabled!==false,h:Number(n?.h)||0,countries:String(n?.countries||''),order:Number(n?.order)||0,oncePerDay:!!n?.oncePerDay,platforms:Array.isArray(n?.platforms)?n.platforms:[],code}};
   if(Array.isArray(d.adSlots))return d.adSlots.map(clean);
   const o=[];
   (d.adNets||[]).forEach(n=>{if(n)o.push(clean({name:n.name,place:n.mode==='interstitial'?'int_video_start':n.mode==='banner'?'bn_video':'global',enabled:n.enabled,h:n.h,code:n.code}))});
   if(!d.adNets){const a=d.ads||{};if(a.interstitial)o.push(clean({name:'Monetag',place:'global',code:a.interstitial}));if(a.banner)o.push(clean({name:'Banner',place:'bn_video',h:100,code:a.banner}))}
   return o;
 }
-const slotsOf=(p,types)=>(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place===p&&n.code&&types.includes(n.type));
-const webSlots=p=>inTG?[]:slotsOf(p,['html']);
-const tgSlots=p=>inTG?slotsOf(p,['monetag_tg','adsgram']):[];
-const adSlots=p=>inTG?tgSlots(p):webSlots(p);
-const adRot={},adTimers=[],injected=new Set();let adIv=null,lastFull=0;
+const slotCountryOk=n=>{const c=String(n.countries||'').toUpperCase().split(/[\s,]+/).filter(Boolean);return !c.length||c.includes((me&&me.country)||'XX')};
+const platOk=n=>{const p=Array.isArray(n.platforms)&&n.platforms.length?n.platforms:null;return p?p.includes(PLAT):true};
+const slotsOf=(p,types)=>(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place===p&&n.code&&types.includes(n.type)&&slotCountryOk(n)&&platOk(n));
+/* what each platform may show (store / network policy): Telegram = Monetag TG SDK + AdsGram, Android app = AdMob (+ html tags if ticked), browser = html tags + AdSense */
+const FS_TYPES={tg:['monetag_tg','adsgram'],apk:['admob_int','admob_rew','html'],web:['html']};
+const webSlots=p=>PLAT==='tg'?[]:slotsOf(p,PLAT==='apk'?['html']:['html','adsense']);
+const adSlots=p=>slotsOf(p,FS_TYPES[PLAT]);
+const adRot={},adTimers=[],injected=new Set();let adIv=null,lastFull=0,loopN=0;
 const rot=(k,list)=>{const i=adRot[k]||0;adRot[k]=i+1;return list[i%list.length]};
 const clearAdTimers=()=>adTimers.splice(0).forEach(clearInterval);
+const adsenseHTML=c=>{if(injected.has('adsense_js'))return c.replace(/<script[^>]*adsbygoogle\.js[^>]*><\/script>/ig,'');if(/adsbygoogle\.js/i.test(c))injected.add('adsense_js');return c};
 function mountAd(el,place,o={}){
   if(!el)return;const list=webSlots(place);
   if(!list.length){el.innerHTML='';el.classList.add('hidden');return}
   const draw=()=>{el.innerHTML='';
     const pick=o.all?list:[o.idx!=null?list[o.idx%list.length]:rot(place+(el.id||''),list)];
-    pick.forEach(n=>{const w=document.createElement('div');w.style.cssText='text-align:center';el.appendChild(w);frameAd(w,n.code,Number(n.h)||o.h||100)});
+    pick.forEach(n=>{const w=document.createElement('div');w.style.cssText='text-align:center';el.appendChild(w);if(n.type==='adsense')injectHTML(w,adsenseHTML(n.code));else frameAd(w,n.code,Number(n.h)||o.h||100)});
     el.classList.remove('hidden')};
   draw();
   if(o.reload>0)adTimers.push(setInterval(draw,Math.max(30,o.reload)*1000));
@@ -406,42 +420,96 @@ function showWebAd(list,cb){
   const n=rot('web',list),box=$('#adBox'),b=$('#adSkip'),ov=$('#ad');
   clearInterval(adIv);box.innerHTML='';ov.classList.remove('hidden');
   const w=document.createElement('div');w.style.cssText='width:100%;max-width:480px;text-align:center';box.appendChild(w);frameAd(w,n.code,Math.round(innerHeight*.7));
-  setTimeout(()=>{if(ov.classList.contains('hidden'))return;try{const d=w.querySelector('iframe').contentDocument;if(!d.body||!d.body.querySelector('iframe,img,video,ins,canvas,a,svg')){b.disabled=false;b.click()}}catch{}},4500);
+  setTimeout(()=>{if(ov.classList.contains('hidden')||!w.isConnected)return;try{const d=w.querySelector('iframe').contentDocument;if(!d.body||!d.body.querySelector('iframe,img,video,ins,canvas,a,svg')){b.disabled=false;b.click()}}catch{}},4500);
+  const auto=Number(S.adAutoSec)||0;if(auto>0)setTimeout(()=>{if(ov.classList.contains('hidden')||!w.isConnected)return;b.disabled=false;b.click()},auto*1000); /* auto skip */
   let k=Math.max(3,Number(S.adSkipSec)||3);b.disabled=true;b.textContent=t('skipIn')+' '+k;
   adIv=setInterval(()=>{k--;if(k>0)b.textContent=t('skipIn')+' '+k;else{clearInterval(adIv);b.disabled=false;b.textContent=t('skip')+' ▶'}},1000);
   b.onclick=()=>{if(b.disabled)return;clearInterval(adIv);ov.classList.add('hidden');box.innerHTML='';cb&&cb()};
 }
+/* ---- video ad ROTATION: every minute the NEXT network in order (admin placement "During video - ROTATION") ---- */
+const loopSlots=()=>(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place==='int_video_loop'&&n.code&&slotCountryOk(n)&&(n.type==='popunder'?PLAT==='web':FS_TYPES[PLAT].includes(n.type))&&platOk(n)).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
+const hasLoop=()=>(S.adSlots||[]).some(n=>n&&n.enabled&&n.place==='int_video_loop'&&n.code);
+const onceKey=n=>'lm_once_'+uid+'_'+spDay()+'_'+(n.name||'')+n.type+String(n.code).length;
+function showLoopAd(cb){
+  const l=loopSlots();let n=null;
+  for(let k=0;k<l.length;k++){const c=l[(loopN+k)%l.length];if(c.oncePerDay&&localStorage.getItem(onceKey(c)))continue;n=c;loopN=loopN+k+1;break}
+  if(!n||Date.now()-lastFull<20000){cb&&cb();return}
+  if(n.oncePerDay){try{localStorage.setItem(onceKey(n),'1')}catch{}}
+  lastFull=Date.now();
+  if(n.type==='popunder'){const k='pop|'+n.code;if(!injected.has(k)){injected.add(k);try{injectHTML(document.body,n.code,true)}catch{}}cb&&cb();return}
+  fullAd(n,'int_video_loop',cb)}
+/* runs ONE ad slot full screen, whatever its type (Telegram SDK / AdMob / web overlay) */
+function fullAd(n,place,cb){
+  const done=()=>{lastFull=Date.now();cb&&cb()};
+  if(n.type==='monetag_tg'||n.type==='adsgram'){tgAd([n],place).finally(done);return}
+  if(n.type==='admob_int'||n.type==='admob_rew'){admobAd(n).finally(done);return}
+  showWebAd([n],done)}
+/* AdMob in the Android app: Capacitor AdMob plugin, or a custom bridge window.LMNative.showAd(type,unitId,test) that calls window.__lmAdDone() when closed */
+let admobReady=false;
+async function admobAd(n){
+  const id=String(n.code).trim(),test=!!S.admobTest||location.search.includes('adtest');
+  try{
+    const P=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.AdMob;
+    if(P){
+      if(!admobReady){await P.initialize({initializeForTesting:test});admobReady=true}
+      if(n.type==='admob_int'){await tmo(P.prepareInterstitial({adId:id,isTesting:test}));await tmo(P.showInterstitial())}
+      else{await tmo(P.prepareRewardVideoAd({adId:id,isTesting:test}));await tmo(P.showRewardVideoAd())}
+      return}
+    if(window.LMNative&&window.LMNative.showAd){await new Promise(res=>{window.__lmAdDone=res;window.LMNative.showAd(n.type,id,test);setTimeout(res,30000)});return}
+    throw new Error('AdMob is not available in this build')
+  }catch(x){console.warn('admob skipped:',x);if(location.search.includes('adtest'))toast('AdMob: '+(x&&(x.message||x.code)||JSON.stringify(x)))}}
 function showAd(place,cb){
   const list=adSlots(place);
   if(!list.length||Date.now()-lastFull<30000){cb&&cb();return}
   lastFull=Date.now();
-  if(inTG){tgAd(list,place).finally(()=>{lastFull=Date.now();cb&&cb()});return}
-  showWebAd(list,cb);
-}
+  fullAd(rot('fs'+place,list),place,cb)}
 function mountSponsor(){
   const el=$('#adSponsor');if(!el)return;
-  const l=(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place==='sponsor'&&n.type==='link'&&isUrl(n.code));
+  const l=(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place==='sponsor'&&n.type==='link'&&isUrl(n.code)&&slotCountryOk(n));
   el.innerHTML=l.map(n=>`<button class="btn btn-ghost w-full" data-act="sponsor" data-url="${esc(n.code)}">🎁 ${esc(n.name||t('sponsored'))} <span class="mut text-xs">· ${esc(t('sponsored'))}</span></button>`).join('');
 }
 
 /* ====== SPONSOR ADS (own ads from admin, country targeted) ====== */
 let spN=0,spYT=null,spUserMuted=false;
-const spList=k=>{
-  const cc=(me&&me.country)||'XX';
-  const all=(S.sponsors||[]).filter(s=>s&&s.enabled!==false&&/^https?:\/\//i.test(s.link||'')&&(s.type==='video'?!!s.ytId:/^https:\/\//i.test(s.media||''))&&(s.audience!=='countries'||String(s.countries||'').toUpperCase().split(/[\s,]+/).includes(cc)));
-  const v=all.filter(s=>s.type==='video'),o=all.filter(s=>s.type!=='video');
-  return k==='video'?(v.length?v:o):(o.length?o:v)};
-const spPick=(k,i)=>{const l=spList(k);return l.length?l[i%l.length]:null};
+/* Sponsor rules: an ad is eligible when it is ON, has a valid image/video, is allowed for this PLACE, today is inside its start/end dates,
+   the user's country matches, and the user has not reached its daily cap. Eligible ads rotate; Weight (1-10) = how often compared with the others. */
+const spSess=new Set();
+const spDay=()=>new Date().toISOString().slice(0,10);
+const spKey=id=>'lm_sp_'+uid+'_'+spDay()+'_'+id;
+const spCnt=id=>Number(localStorage.getItem(spKey(id)))||0;
+const spOk=(s,place)=>{
+  if(!s||s.enabled===false||!/^https?:\/\//i.test(s.link||''))return false;
+  const m=s.media||'';
+  if(s.type==='video'?!s.ytId:!(/^https:\/\//i.test(m)||/^data:image\//i.test(m)))return false;
+  const pl=Array.isArray(s.places)&&s.places.length?s.places:(s.type==='video'?['video_grid','video_player']:['task','mine','community']);
+  if(!pl.includes(place))return false;
+  const now=Date.now();
+  if(s.start&&now<new Date(s.start+'T00:00:00').getTime())return false;
+  if(s.end&&now>new Date(s.end+'T23:59:59').getTime())return false;
+  if(s.audience==='countries'&&!String(s.countries||'').toUpperCase().split(/[\s,]+/).includes((me&&me.country)||'XX'))return false;
+  if(Number(s.dailyCap)>0&&spCnt(s.id)>=Number(s.dailyCap)&&!spSess.has(place+s.id))return false;
+  return true};
+const spList=place=>{
+  const all=(S.sponsors||[]).filter(s=>spOk(s,place));
+  const w=s=>Math.max(1,Math.min(10,Number(s.weight)||5));
+  const mx=Math.max(0,...all.map(w));const o=[];
+  for(let r=1;r<=mx;r++)all.forEach(s=>{if(w(s)>=r)o.push(s)});
+  return o};
+const spPick=(place,i)=>{
+  const l=spList(place);if(!l.length)return null;
+  const s=l[i%l.length];
+  if(!spSess.has(place+s.id)){spSess.add(place+s.id);try{localStorage.setItem(spKey(s.id),spCnt(s.id)+1)}catch{}}
+  return s};
 const spThumb=s=>s.type==='video'?'https://i.ytimg.com/vi/'+esc(s.ytId)+'/hqdefault.jpg':esc(s.media);
 const spInfo=s=>`<div class="p-3"><b class="text-sm">${esc(s.title||'')}</b>${s.text?`<p class="text-xs mut mt-1">${esc(s.text)}</p>`:''}<button class="btn btn-pri w-full !py-2 mt-2 text-sm" data-act="spClick" data-sid="${esc(s.id)}">${esc(s.btn||'Open')} ↗</button></div>`;
 /* static card (image or YouTube thumbnail). Tap = open link */
-const spCard=s=>`<div class="spc"><div class="spm"><img src="${spThumb(s)}" loading="lazy" alt=""><div class="spo" data-act="spClick" data-sid="${esc(s.id)}"></div>${s.type==='video'?'<div class="spplay">▶</div>':''}<span class="badge spb">${esc(t('sponsored'))}</span></div>${spInfo(s)}</div>`;
+const spCard=s=>`<div class="spc"><div class="spm"><img src="${spThumb(s)}" loading="lazy" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'spfb',textContent:'🎁'}))"><div class="spo" data-act="spClick" data-sid="${esc(s.id)}"></div>${s.type==='video'?'<div class="spplay">▶</div>':''}<span class="badge spb">${esc(t('sponsored'))}</span></div>${spInfo(s)}</div>`;
 function spMount(el,k,i){if(!el)return;const s=spPick(k,i);if(!s){el.innerHTML='';el.classList.add('hidden');return}el.innerHTML=spCard(s);el.classList.remove('hidden')}
 function bridge(arr,n,k){n=Math.max(2,Number(n)||6);const o=[];arr.forEach((h,i)=>{o.push(h);if((i+1)%n===0){const s=spPick(k,Math.floor(i/n));if(s)o.push(`<div class="col-span-2">${spCard(s)}</div>`)}});return o}
 /* sponsor under the main video: YouTube player, starts (sound ON) when the main video plays, pauses when it pauses. Tap on it = open link. */
 async function spPlayer(){
   const el=$('#vSponsor');spDestroy();
-  const s=spPick('video',spN++);if(!s){el.innerHTML='';el.classList.add('hidden');return}
+  const s=spPick('video_player',spN++);if(!s){el.innerHTML='';el.classList.add('hidden');return}
   el.classList.remove('hidden');
   if(s.type!=='video'){el.innerHTML=spCard(s);return}
   spUserMuted=false;
@@ -463,10 +531,10 @@ function spCtl(on){
 
 function enterTab(n){
   const rl=Math.max(30,Number(S.bannerEverySec)||60);
-  if(n==='mine'){spMount($('#spMine'),'other',spN++);mountAd($('#adMineTop'),'bn_mine',{reload:rl,h:100});mountSponsor();injectOnce('sb_mine')}
+  if(n==='mine'){spMount($('#spMine'),'mine',spN++);mountAd($('#adMineTop'),'bn_mine',{reload:rl,h:100});mountSponsor();injectOnce('sb_mine')}
   if(n==='task'){mountAd($('#adTaskTop'),'bn_task_top',{reload:rl,h:100});mountAd($('#adTaskNative'),'nat_task',{h:250});injectOnce('sb_task');mountEmpty('#taskGrid [data-adm]')}
-  if(n==='community'){spMount($('#spComm'),'other',spN++);mountStrip();injectOnce('sb_comm');mountEmpty('#commList [data-adm]')}
-  if(n==='profile'){mountAd($('#adProfile'),'bn_profile',{all:true,reload:rl,h:100})}
+  if(n==='community'){spMount($('#spComm'),'community',spN++);mountStrip();injectOnce('sb_comm');mountEmpty('#commList [data-adm]')}
+  if(n==='profile'){spMount($('#spProfile'),'profile',spN++);mountAd($('#adProfile'),'bn_profile',{all:true,reload:rl,h:100})}
 }
 
 /* ====== language ====== */
@@ -584,7 +652,11 @@ function startSession(u){
     $('#banned').classList.add('hidden');$('#app').classList.remove('hidden');renderAll();loadGlobalAds();
   },e=>toast(friendly(e))));
   subs.push(onSnapshot(query(collection(db,'videos'),where('active','==',true)),s=>{videos=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderVideos()},e=>toast(friendly(e))));
-  subs.push(onSnapshot(query(collection(db,'tasks'),where('active','==',true)),s=>{tasks=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.audience!=='one'||x.targetUid===uid).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderTasks()},e=>toast(friendly(e))));
+  const tk={a:[],b:[]};
+  const mergeT=()=>{const m=new Map();[...tk.a,...tk.b].forEach(x=>m.set(x.id,x));tasks=[...m.values()].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderTasks()};
+  /* two queries: public tasks + tasks targeted at this user only (private tasks are never downloaded by others) */
+  subs.push(onSnapshot(query(collection(db,'tasks'),where('active','==',true),where('audience','==','all')),s=>{tk.a=s.docs.map(d=>({id:d.id,...d.data()}));mergeT()},e=>toast(friendly(e))));
+  subs.push(onSnapshot(query(collection(db,'tasks'),where('active','==',true),where('targetUid','==',uid)),s=>{tk.b=s.docs.map(d=>({id:d.id,...d.data()}));mergeT()},()=>{}));
   subs.push(onSnapshot(query(collection(db,'task_requests'),where('uid','==',uid)),s=>{reqs={};s.docs.forEach(d=>reqs[d.data().taskId]=d.data().status);renderTasks();if(!$('#mTask').classList.contains('hidden'))renderTaskModal()},e=>toast(friendly(e))));
   subs.push(onSnapshot(collection(db,'users',uid,'watched'),s=>{watched=new Set(s.docs.map(d=>d.id))},()=>{}));
   subs.push(onSnapshot(query(collection(db,'withdrawals'),where('uid','==',uid)),s=>{wds=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderWds()},e=>toast(friendly(e))));
@@ -605,14 +677,20 @@ function switchTab(n){
 function renderAll(){renderHeader();renderVideos();renderMine();renderTasks();renderCommunity();renderProfile();renderWds()}
 function renderHeader(){$('#hBal').textContent=fmt(me.balanceLM,6)}
 
-let vidSig='';
+let vidSig='',vCat='all',vShown=10,tShown=15;
+const PAGE_V=10,PAGE_T=15;
 function renderVideos(){
   const g=$('#videoGrid');if(!g)return;
-  const sig=JSON.stringify([videos.map(v=>[v.id,v.title,v.reward,v.duration,v.ytId]),lang,S.i18nCcp,S.sponsors,S.sponsorEveryVideos,me&&me.country]);
+  const cats=[...new Set(videos.map(v=>String(v.category||'').trim()).filter(Boolean))];
+  if(vCat!=='all'&&!cats.includes(vCat))vCat='all';
+  const sig=JSON.stringify([videos.map(v=>[v.id,v.title,v.reward,v.duration,v.ytId,v.category]),lang,S.i18nCcp,S.sponsors,S.sponsorEveryVideos,me&&me.country,vCat,vShown]);
   if(sig===vidSig)return;vidSig=sig;
-  if(!videos.length){g.innerHTML=`<div class="col-span-2 mut text-center py-10">${esc(t('noVideos'))}</div>`;return}
-  /* a sponsor card (video-type sponsors first) after every N videos */
-  g.innerHTML=bridge(videos.map(v=>`<div class="card overflow-hidden"><img class="thumb" loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/hqdefault.jpg" alt=""><div class="p-3"><div class="text-sm font-semibold leading-tight" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(v.title)}</div><div class="flex items-center justify-between mt-2"><span class="badge">+${fmt(v.reward,6)} LM</span><span class="text-xs mut">${mmss(v.duration)}</span></div><button class="btn btn-pri w-full !py-2 mt-2 text-sm" data-act="play" data-id="${v.id}">▶ ${esc(t('play'))}</button></div></div>`),S.sponsorEveryVideos,'video').join('');
+  const cb=$('#vCats');cb.classList.toggle('hidden',!cats.length);
+  cb.innerHTML=cats.length?['all',...cats].map(c=>`<button class="chip ${c===vCat?'on':''}" data-act="vCat" data-c="${esc(c)}">${c==='all'?esc(t('allCat')):esc(c)}</button>`).join(''):'';
+  const list=vCat==='all'?videos:videos.filter(v=>String(v.category||'').trim()===vCat),mo=$('#vMore');
+  if(!list.length){g.innerHTML=`<div class="col-span-2 mut text-center py-10">${esc(t('noVideos'))}</div>`;mo.classList.add('hidden');return}
+  g.innerHTML=bridge(list.slice(0,vShown).map(v=>`<div class="card overflow-hidden"><img class="thumb" loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/hqdefault.jpg" alt=""><div class="p-3"><div class="text-sm font-semibold leading-tight" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(v.title)}</div><div class="flex items-center justify-between mt-2"><span class="badge">+${fmt(v.reward,6)} LM</span><span class="text-xs mut">${mmss(v.duration)}</span></div><button class="btn btn-pri w-full !py-2 mt-2 text-sm" data-act="play" data-id="${v.id}">▶ ${esc(t('play'))}</button></div></div>`),S.sponsorEveryVideos,'video_grid').join('');
+  mo.classList.toggle('hidden',list.length<=vShown);mo.textContent=t('loadMore')+' ('+(list.length-vShown)+')';
 }
 
 /* ---- video player ---- */
@@ -640,9 +718,10 @@ function tickVideo(){
   vs.left--;vs.played++;$('#vTimer').textContent=mmss(vs.left);
   if(vs.left<=0){finishVideo();return}
   const ev=Math.max(60,Number(S.videoAdEverySec)||60);
-  if(vs.played%ev===0&&adSlots('int_video_every').length){
-    vs.adOpen=true;try{yt.pauseVideo()}catch{}
-    showAd('int_video_every',()=>{vs.adOpen=false;try{yt.playVideo()}catch{}});
+  if(vs.played%ev===0){
+    const back=()=>{vs.adOpen=false;try{yt.playVideo()}catch{}};
+    if(hasLoop()){vs.adOpen=true;try{yt.pauseVideo()}catch{}showLoopAd(back)}
+    else if(adSlots('int_video_every').length){vs.adOpen=true;try{yt.pauseVideo()}catch{}showAd('int_video_every',back)}
   }
 }
 function finishVideo(){
@@ -712,15 +791,16 @@ const taskCard=k=>{const st=reqs[k.id];return `<div class="card overflow-hidden"
 let taskSig='';
 function renderTasks(){
   const g=$('#taskGrid');if(!g||!me)return;
-  const midN=adSlots('bn_task_mid').length;
-  const sig=JSON.stringify([tasks.map(k=>[k.id,k.title,k.reward,k.currency,k.cover,reqs[k.id]]),lang,S.i18nCcp,midN,S.sponsors,S.sponsorEveryTasks,me.country]);
+  const midN=webSlots('bn_task_mid').length;
+  const sig=JSON.stringify([tasks.map(k=>[k.id,k.title,k.reward,k.currency,k.cover,reqs[k.id]]),lang,S.i18nCcp,midN,S.sponsors,S.sponsorEveryTasks,me.country,tShown]);
   if(sig===taskSig)return;taskSig=sig;
-  if(!tasks.length){g.innerHTML=`<div class="col-span-2 mut text-center py-10">${esc(t('noTasks'))}</div>`;return}
+  if(!tasks.length){g.innerHTML=`<div class="col-span-2 mut text-center py-10">${esc(t('noTasks'))}</div>`;$('#tMore').classList.add('hidden');return}
   const every=4,tn=Math.max(2,Number(S.sponsorEveryTasks)||5);let out='';
-  tasks.forEach((k,i)=>{out+=taskCard(k);
-    if((i+1)%tn===0){const s=spPick('other',Math.floor(i/tn));if(s)out+=`<div class="col-span-2">${spCard(s)}</div>`} /* sponsor after every N tasks */
+  tasks.slice(0,tShown).forEach((k,i)=>{out+=taskCard(k);
+    if((i+1)%tn===0){const s=spPick('task',Math.floor(i/tn));if(s)out+=`<div class="col-span-2">${spCard(s)}</div>`} /* sponsor after every N tasks */
     if(midN&&(i+1)%every===0)out+=`<div class="col-span-2" data-adm="bn_task_mid" data-i="${Math.floor(i/every)}"></div>`});
   g.innerHTML=out;if(tab==='task')mountEmpty('#taskGrid [data-adm]');
+  const tm=$('#tMore');tm.classList.toggle('hidden',tasks.length<=tShown);tm.textContent=t('loadMore')+' ('+(tasks.length-tShown)+')';
 }
 let curTask=null,tIv=null;
 const tKey=id=>`lm_task_${uid}_${id}`;
@@ -758,7 +838,7 @@ async function taskProof(){
 const LINKS=[['website','🌐','Website'],['youtube','▶️','YouTube'],['telegramChannel','📣','Telegram Channel'],['telegramGroup','💬','Telegram Group'],['facebook','📘','Facebook'],['instagram','📸','Instagram'],['tiktok','🎵','TikTok'],['twitter','🐦','X / Twitter']];
 let commSig='';
 function renderCommunity(){
-  const items=LINKS.filter(([k])=>/^https?:\/\//i.test(S.links?.[k]||'')),midN=adSlots('bn_comm_mid').length;
+  const items=LINKS.filter(([k])=>/^https?:\/\//i.test(S.links?.[k]||'')),midN=webSlots('bn_comm_mid').length;
   const sig=JSON.stringify([items.map(([k])=>S.links[k]),lang,S.i18nCcp,midN]);
   if(sig===commSig)return;commSig=sig;
   if(!items.length){$('#commList').innerHTML=`<div class="mut text-center py-10">${esc(t('noLinks'))}</div>`;return}
@@ -846,6 +926,7 @@ const A={
   photo:async()=>{const u=prompt('https://… image URL');if(!u)return;if(!/^https:\/\//.test(u))return toast('HTTPS only');try{await updateDoc(doc(db,'users',uid),{photo:u})}catch(x){toast(friendly(x))}},
   openExchange,doExchange,xMax:()=>{$('#xAmt').value=fmt(me.balanceLM,8);calcExch()},
   openWithdraw,doWithdraw,closeAll,sponsor:d=>openExternal(d.url),
+  vCat:d=>{vCat=d.c;vShown=PAGE_V;renderVideos()},vMore:()=>{vShown+=PAGE_V;renderVideos()},tMore:()=>{tShown+=PAGE_T;renderTasks()},
   spClick:d=>{const s=(S.sponsors||[]).find(x=>x.id===d.sid);if(s)openExternal(s.link)},
   spMute:()=>{const p=spYT;if(!p)return;try{if(p.isMuted()){p.unMute();p.setVolume(100);spUserMuted=false}else{p.mute();spUserMuted=true}spBtn()}catch{}}
 };
