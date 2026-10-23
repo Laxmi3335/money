@@ -129,6 +129,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
     </div>
   </header>
  <script src='//libtl.com/sdk.js' data-zone='12088634' data-sdk='show_12088634'></script>
+
   <section id="tab-video" class="tab px-4 pt-2">
     <h2 class="text-lg font-bold mb-3" data-i18n="video"></h2>
     <div id="vCats" class="flex gap-2 overflow-x-auto pb-2 mb-2 hidden" style="scrollbar-width:none"></div>
@@ -302,7 +303,7 @@ const CCP={video:'𑄞𑄨𑄓𑄨𑄃𑄱',mine:'𑄞𑄣',task:'𑄦𑄟𑄴',
 if(location.search.includes('keys=1')){document.body.innerHTML='<p style="padding:10px;font:14px sans-serif">Copy this JSON, translate the values into Chakma, and paste it in admin.html → Settings → Chakma translations.</p><textarea style="width:96%;height:80vh;margin:2%;font:13px monospace">'+JSON.stringify(EN,null,2)+'</textarea>';throw 0}
 
 let lang=localStorage.getItem('lm_lang')||'en';
-const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,adAutoSec:10,bannerEverySec:60,videoAdEverySec:60,refPercent:0,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',links:{},adSlots:[],sponsors:[],sponsorEveryVideos:6,sponsorEveryTasks:5,adsgramDebug:false,admobTest:false,i18nCcp:{},
+const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,adAutoSec:10,bannerEverySec:60,videoAdEverySec:60,refPercent:0,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',tgBot:'',tgApp:'',links:{},adSlots:[],sponsors:[],sponsorEveryVideos:6,sponsorEveryTasks:5,adsgramDebug:false,admobTest:false,i18nCcp:{},
 payments:{bkash:{name:'bKash',scope:'BD',enabled:true,minUSD:1,hint:'bKash number'},nagad:{name:'Nagad',scope:'BD',enabled:true,minUSD:1,hint:'Nagad number'},binance:{name:'Binance Pay',scope:'INTL',enabled:true,minUSD:5,hint:'Binance Pay ID'},usdt:{name:'USDT (TRC20/BEP20)',scope:'INTL',enabled:true,minUSD:5,hint:'Wallet address + network'},nsave:{name:'Nsave',scope:'INTL',enabled:true,minUSD:5,hint:'Nsave account'}}};
 let S=JSON.parse(JSON.stringify(DEF));
 const t=k=>lang==='ccp'?(S.i18nCcp?.[k]||CCP[k]||EN[k]||k):(EN[k]||k);
@@ -552,7 +553,9 @@ const COUNTRIES=[['BD','Bangladesh'],['IN','India'],['PK','Pakistan'],['NP','Nep
 const countryOpts=COUNTRIES.map(([c,n])=>`<option value="${c}">${flag(c)} ${c} — ${n}</option>`).join('');
 $('#rCountry').innerHTML=countryOpts;$('#cCountry').innerHTML=countryOpts;
 fetch('https://ipapi.co/json/').then(r=>r.json()).then(j=>{const c=(j.country_code||'').toUpperCase();if(COUNTRIES.some(x=>x[0]===c)){$('#rCountry').value=c;$('#cCountry').value=c}}).catch(()=>{});
-const urlRef=(new URLSearchParams(location.search).get('ref')||'').toUpperCase();
+/* referral code comes from the Telegram start parameter (t.me/BOT?startapp=CODE) or from ?ref=CODE */
+const tgStart=String((TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param)||new URLSearchParams(location.hash.slice(1)).get('tgWebAppStartParam')||'');
+const urlRef=(new URLSearchParams(location.search).get('ref')||tgStart.replace(/^ref_/i,'')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
 if(urlRef)localStorage.setItem('lm_ref',urlRef);
 $('#rRef').value=localStorage.getItem('lm_ref')||'';$('#cRef').value=localStorage.getItem('lm_ref')||'';
 
@@ -850,10 +853,15 @@ function renderCommunity(){
 }
 
 /* ---- profile ---- */
+/* referral link = Telegram bot link (never the hosting URL when a bot is set). Web/APK without a bot set keep the site link. */
+function refLink(){
+  const bot=String(S.tgBot||'').trim().replace(/^@|^https?:\/\/t\.me\//i,'').replace(/\/.*$/,''),app=String(S.tgApp||'').trim().replace(/[^A-Za-z0-9_]/g,'');
+  if(bot)return 'https://t.me/'+bot+(app?'/'+app:'')+'?startapp='+me.refCode;
+  return inTG?'':location.origin+location.pathname+'?ref='+me.refCode}
 function renderProfile(){
   const av=me.photo&&/^https:\/\//.test(me.photo)?`<img src="${esc(me.photo)}" class="w-20 h-20 rounded-full object-cover mx-auto" alt="" referrerpolicy="no-referrer">`:`<div class="logo !w-20 !h-20 !rounded-full !text-3xl">${esc((me.name||'?')[0].toUpperCase())}</div>`;
   $('#pAvatar').innerHTML=av;$('#pName').textContent=me.name;$('#pEmail').textContent=me.email;$('#pCountry').textContent=flag(me.country)+' '+me.country;
-  $('#pRef').value=location.origin+location.pathname+'?ref='+me.refCode;
+  $('#pRef').value=refLink();$('#pRef').placeholder='Admin: set the Telegram bot username in Settings';
   $('#sUSD').textContent=fmt(me.balanceUSD,4);$('#sLM').textContent=fmt(me.balanceLM,8);$('#sTasks').textContent=me.tasksDone||0;$('#sMined').textContent=fmt(me.minedLM,8);
   $('#sLMval').textContent='≈ $'+fmt(me.balanceLM*S.lmRateUSD,4)+' · ৳'+fmt(me.balanceLM*S.lmRateUSD*S.bdtPerUSD,2);
   $('#pRefEarn').textContent=refPct()>0?(t('refEarned')+' ('+refPct()+'%): '+fmt(me.refEarnedLM,8)+' LM'+(me.refEarnedUSD?' · $'+fmt(me.refEarnedUSD,4):'')):'';
@@ -924,7 +932,7 @@ const A={
   play:d=>playVideo(d.id),closeVideo,videoClaim,
   mineBtn,
   openTask:d=>openTask(d.id),closeTask:()=>{clearInterval(tIv);$('#mTask').classList.add('hidden')},taskOpen,taskProof,
-  copyRef:()=>{navigator.clipboard?.writeText($('#pRef').value);toast(t('copied'))},
+  copyRef:()=>{const v=$('#pRef').value;if(!v)return toast('Referral link is not ready yet');navigator.clipboard?.writeText(v);toast(t('copied'))},
   photo:async()=>{const u=prompt('https://… image URL');if(!u)return;if(!/^https:\/\//.test(u))return toast('HTTPS only');try{await updateDoc(doc(db,'users',uid),{photo:u})}catch(x){toast(friendly(x))}},
   openExchange,doExchange,xMax:()=>{$('#xAmt').value=fmt(me.balanceLM,8);calcExch()},
   openWithdraw,doWithdraw,closeAll,sponsor:d=>openExternal(d.url),
