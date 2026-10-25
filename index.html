@@ -202,6 +202,8 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
       <button class="btn btn-pri" data-act="openExchange">⇄ <span data-i18n="exchange"></span></button>
       <button class="btn btn-green" data-act="openWithdraw">💸 <span data-i18n="withdraw"></span></button>
     </div>
+    <button id="advBtn" class="btn btn-pri w-full mt-3 hidden" data-act="openAds">📢 Ad Manager</button>
+    <button id="crBtn" class="btn btn-pri w-full mt-3 hidden" data-act="openCr">🎬 Creator</button>
     <div id="spProfile" class="mt-3 hidden"></div>
     <div class="card p-4 mt-3"><div class="font-bold mb-2" data-i18n="history"></div><div id="wdList" class="space-y-2 text-sm"></div></div>
     <div id="supportBtns" class="grid gap-3 mt-3"></div>
@@ -230,6 +232,16 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
   <button id="vClaim" class="btn btn-green w-full mt-3 hidden" data-act="videoClaim"></button>
   <div id="vSponsor" class="mt-3 hidden"></div>
   <div id="vBanner" class="mt-3 hidden"></div>
+</div></div>
+
+<div id="mAds" class="modal hidden"><div>
+  <div class="flex justify-between items-center"><h3 class="font-bold">📢 Ad Manager</h3><button class="btn btn-ghost !py-1 !px-3" data-act="closeAll">✕</button></div>
+  <div id="adsBody" class="mt-3"></div>
+</div></div>
+
+<div id="mCr" class="modal hidden"><div>
+  <div class="flex justify-between items-center"><h3 class="font-bold">🎬 Creator</h3><button class="btn btn-ghost !py-1 !px-3" data-act="closeAll">✕</button></div>
+  <div id="crBody" class="mt-3"></div>
 </div></div>
 
 <div id="mTask" class="modal hidden"><div>
@@ -265,8 +277,8 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,query,where,onSnapshot,writeBatch,serverTimestamp,increment,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,signInWithCustomToken} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,addDoc,updateDoc,collection,query,where,onSnapshot,writeBatch,serverTimestamp,increment,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAggGgDK-qm9WhdOjLO1gT5tojgLK-x_IA",
@@ -303,7 +315,7 @@ const CCP={video:'𑄞𑄨𑄓𑄨𑄃𑄱',mine:'𑄞𑄣',task:'𑄦𑄟𑄴',
 if(location.search.includes('keys=1')){document.body.innerHTML='<p style="padding:10px;font:14px sans-serif">Copy this JSON, translate the values into Chakma, and paste it in admin.html → Settings → Chakma translations.</p><textarea style="width:96%;height:80vh;margin:2%;font:13px monospace">'+JSON.stringify(EN,null,2)+'</textarea>';throw 0}
 
 let lang=localStorage.getItem('lm_lang')||'en';
-const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,adAutoSec:10,bannerEverySec:60,videoAdEverySec:60,refPercent:0,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',tgBot:'',tgApp:'',links:{},adSlots:[],sponsors:[],sponsorEveryVideos:6,sponsorEveryTasks:5,adsgramDebug:false,admobTest:false,i18nCcp:{},
+const DEF={lmRateUSD:5,exchangeFee:3,minExchangeLM:0.005,mineReward:0.00005,mineSeconds:7200,bdtPerUSD:100,taskTimerSec:30,adSkipSec:3,adAutoSec:10,bannerEverySec:60,videoAdEverySec:60,refPercent:0,deviceFingerprint:true,proofTelegram:'',supportTelegram:'',supportWhatsApp:'',tgBot:'',tgApp:'',links:{},adSlots:[],sponsors:[],sponsorEveryVideos:6,sponsorEveryTasks:5,adsgramDebug:false,admobTest:false,adPriceBDT:50,adPriceUSD:0.5,adMinDays:1,adMaxDays:30,adRenewDays:5,adPay:[],creatorViewerRewardLM:0.00005,creatorEarnPerView:0.00002,creatorMaxDays:30,creatorMaxDuration:3600,i18nCcp:{},
 payments:{bkash:{name:'bKash',scope:'BD',enabled:true,minUSD:1,hint:'bKash number'},nagad:{name:'Nagad',scope:'BD',enabled:true,minUSD:1,hint:'Nagad number'},binance:{name:'Binance Pay',scope:'INTL',enabled:true,minUSD:5,hint:'Binance Pay ID'},usdt:{name:'USDT (TRC20/BEP20)',scope:'INTL',enabled:true,minUSD:5,hint:'Wallet address + network'},nsave:{name:'Nsave',scope:'INTL',enabled:true,minUSD:5,hint:'Nsave account'}}};
 let S=JSON.parse(JSON.stringify(DEF));
 const t=k=>lang==='ccp'?(S.i18nCcp?.[k]||CCP[k]||EN[k]||k):(EN[k]||k);
@@ -325,6 +337,8 @@ const inTG=!!(TG&&TG.initData);
 /* platform: tg = Telegram bot mini app, apk = Android app (Capacitor / WebView wrapper), web = normal browser */
 const IS_APK=!inTG&&!!((window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform())||window.LMNative||/LMCoinApp/i.test(navigator.userAgent));
 const PLAT=inTG?'tg':IS_APK?'apk':'web';
+/* Cloudflare Worker address (see worker.js). Leave empty to keep the old email login only. Example: https://lmcoin-api.YOURNAME.workers.dev */
+const WORKER_URL='https://lmcoin.laxmimoychangma.workers.dev';
 if(TG){try{TG.ready();TG.expand()}catch{}}
 if(inTG||IS_APK)$$('.gbit').forEach(e=>e.classList.add('hidden')); /* Google blocks sign-in inside embedded WebViews */
 function openExternal(url){
@@ -473,7 +487,11 @@ function mountSponsor(){
 }
 
 /* ====== SPONSOR ADS (own ads from admin, country targeted) ====== */
-let spN=0,spYT=null,spUserMuted=false;
+let spN=0,spYT=null,spUserMuted=false,camps=[],appr=[],myVids=[];
+/* approved advertiser campaigns behave like sponsor ads (same rules: places, country, weight) */
+const campToSp=c=>({id:'c_'+c.id,cid:c.id,title:c.title,text:c.text,btn:c.btn,type:c.type,media:c.media,ytId:c.ytId,link:c.link,audience:c.audience,countries:c.countries,places:c.places,weight:5,dailyCap:0,endAt:c.endAt,startAt:c.startAt,enabled:true});
+const allSp=()=>[...(S.sponsors||[]),...appr.map(campToSp)];
+function campClick(s){if(!s.cid||!uid)return;const k='lm_ck_'+uid+'_'+new Date().toISOString().slice(0,10)+'_'+s.cid;if(localStorage.getItem(k))return;try{localStorage.setItem(k,'1')}catch{}updateDoc(doc(db,'ad_campaigns',s.cid),{clicks:increment(1)}).catch(()=>{})}
 /* Sponsor rules: an ad is eligible when it is ON, has a valid image/video, is allowed for this PLACE, today is inside its start/end dates,
    the user's country matches, and the user has not reached its daily cap. Eligible ads rotate; Weight (1-10) = how often compared with the others. */
 const spSess=new Set();
@@ -487,13 +505,14 @@ const spOk=(s,place)=>{
   const pl=Array.isArray(s.places)&&s.places.length?s.places:(s.type==='video'?['video_grid','video_player']:['task','mine','community']);
   if(!pl.includes(place))return false;
   const now=Date.now();
+  if(s.endAt&&now>s.endAt)return false;if(s.startAt&&now<s.startAt)return false;
   if(s.start&&now<new Date(s.start+'T00:00:00').getTime())return false;
   if(s.end&&now>new Date(s.end+'T23:59:59').getTime())return false;
   if(s.audience==='countries'&&!String(s.countries||'').toUpperCase().split(/[\s,]+/).includes((me&&me.country)||'XX'))return false;
   if(Number(s.dailyCap)>0&&spCnt(s.id)>=Number(s.dailyCap)&&!spSess.has(place+s.id))return false;
   return true};
 const spList=place=>{
-  const all=(S.sponsors||[]).filter(s=>spOk(s,place));
+  const all=allSp().filter(s=>spOk(s,place));
   const w=s=>Math.max(1,Math.min(10,Number(s.weight)||5));
   const mx=Math.max(0,...all.map(w));const o=[];
   for(let r=1;r<=mx;r++)all.forEach(s=>{if(w(s)>=r)o.push(s)});
@@ -640,7 +659,16 @@ async function completeProfile(){
   }
   b.disabled=false;
 }
+let tgTried=false;
+async function tgLogin(){
+  try{
+    const r=await fetch(WORKER_URL+'/auth/telegram',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({initData:TG.initData,ref:urlRef||localStorage.getItem('lm_ref')||''})});
+    const j=await r.json();if(!j.token)throw new Error(j.error||'Telegram login failed');
+    await signInWithCustomToken(auth,j.token); /* onAuthStateChanged continues */
+  }catch(x){console.warn('tg login',x);$('#splash').classList.add('hidden');$('#auth').classList.remove('hidden');authErr(String(x.message||x))}
+}
 onAuthStateChanged(auth,u=>{
+  if(!u&&inTG&&WORKER_URL&&!tgTried){tgTried=true;tgLogin();return}
   $('#splash').classList.add('hidden');
   if(registering)return;
   if(u)startSession(u);else{stopSession();$('#app').classList.add('hidden');$('#banned').classList.add('hidden');$('#complete').classList.add('hidden');$('#auth').classList.remove('hidden')}
@@ -656,7 +684,7 @@ function startSession(u){
     if(me.banned){$('#app').classList.add('hidden');$('#banned').classList.remove('hidden');return}
     $('#banned').classList.add('hidden');$('#app').classList.remove('hidden');renderAll();loadGlobalAds();
   },e=>toast(friendly(e))));
-  subs.push(onSnapshot(query(collection(db,'videos'),where('active','==',true)),s=>{videos=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderVideos()},e=>toast(friendly(e))));
+  subs.push(onSnapshot(query(collection(db,'videos'),where('active','==',true)),s=>{videos=s.docs.map(d=>({id:d.id,...d.data()})).filter(v=>!v.expireAt||v.expireAt>Date.now()).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderVideos()},e=>toast(friendly(e))));
   const tk={a:[],b:[]};
   const mergeT=()=>{const m=new Map();[...tk.a,...tk.b].forEach(x=>m.set(x.id,x));tasks=[...m.values()].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderTasks()};
   /* two queries: public tasks + tasks targeted at this user only (private tasks are never downloaded by others) */
@@ -665,6 +693,9 @@ function startSession(u){
   subs.push(onSnapshot(query(collection(db,'task_requests'),where('uid','==',uid)),s=>{reqs={};s.docs.forEach(d=>reqs[d.data().taskId]=d.data().status);renderTasks();if(!$('#mTask').classList.contains('hidden'))renderTaskModal()},e=>toast(friendly(e))));
   subs.push(onSnapshot(collection(db,'users',uid,'watched'),s=>{watched=new Set(s.docs.map(d=>d.id))},()=>{}));
   subs.push(onSnapshot(query(collection(db,'withdrawals'),where('uid','==',uid)),s=>{wds=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));renderWds()},e=>toast(friendly(e))));
+  subs.push(onSnapshot(query(collection(db,'videos'),where('creatorUid','==',uid)),s=>{myVids=s.docs.map(d=>({id:d.id,...d.data()}));if(!$('#mCr').classList.contains('hidden'))renderCreator()},()=>{}));
+  subs.push(onSnapshot(query(collection(db,'ad_campaigns'),where('status','==','approved')),s=>{appr=s.docs.map(d=>({id:d.id,...d.data()}));vidSig='';taskSig='';renderVideos();renderTasks()},()=>{}));
+  subs.push(onSnapshot(query(collection(db,'ad_campaigns'),where('uid','==',uid)),s=>{camps=s.docs.map(d=>({id:d.id,...d.data()}));loadPriv()},()=>{}));
   getDocs(query(collection(db,'users'),where('referredBy','==',uid))).then(s=>$('#pRefCount').textContent=s.size).catch(()=>{});
 }
 onSnapshot(doc(db,'settings','main'),s=>{
@@ -688,7 +719,7 @@ function renderVideos(){
   const g=$('#videoGrid');if(!g)return;
   const cats=[...new Set(videos.map(v=>String(v.category||'').trim()).filter(Boolean))];
   if(vCat!=='all'&&!cats.includes(vCat))vCat='all';
-  const sig=JSON.stringify([videos.map(v=>[v.id,v.title,v.reward,v.duration,v.ytId,v.category]),lang,S.i18nCcp,S.sponsors,S.sponsorEveryVideos,me&&me.country,vCat,vShown]);
+  const sig=JSON.stringify([videos.map(v=>[v.id,v.title,v.reward,v.duration,v.ytId,v.category]),lang,S.i18nCcp,S.sponsors,appr.length,S.sponsorEveryVideos,me&&me.country,vCat,vShown]);
   if(sig===vidSig)return;vidSig=sig;
   const cb=$('#vCats');cb.classList.toggle('hidden',!cats.length);
   cb.innerHTML=cats.length?['all',...cats].map(c=>`<button class="chip ${c===vCat?'on':''}" data-act="vCat" data-c="${esc(c)}">${c==='all'?esc(t('allCat')):esc(c)}</button>`).join(''):'';
@@ -731,7 +762,7 @@ function tickVideo(){
 }
 function finishVideo(){
   vs.done=true;$('#vTimer').textContent='✓';const v=vs.v;
-  if(watched.has(v.id)||!(Number(v.reward)>0))return;
+  if(watched.has(v.id)||!(Number(v.reward)>0)||v.creatorUid===uid)return; /* creators cannot earn on their own video */
   const c=$('#vClaim');c.textContent='🎁 '+t('claim')+' (+'+fmt(v.reward,6)+' LM)';c.disabled=false;c.classList.remove('hidden');
 }
 function videoClaim(){
@@ -742,6 +773,7 @@ function videoClaim(){
     const mk=withRef=>{const b=writeBatch(db);
       b.set(doc(db,'users',uid,'watched',v.id),{at:serverTimestamp()});
       b.update(doc(db,'users',uid),{balanceLM:increment(r),earnedLM:increment(r),lastVideoId:v.id});
+      b.update(doc(db,'videos',v.id),{views:increment(1),watchSec:increment(Number(v.duration)||0)}); /* watch stats for creators */
       if(withRef&&cut>0)b.update(doc(db,'users',me.referredBy),{balanceLM:increment(cut),refEarnedLM:increment(cut)});
       return b};
     try{
@@ -797,15 +829,16 @@ let taskSig='';
 function renderTasks(){
   const g=$('#taskGrid');if(!g||!me)return;
   const midN=webSlots('bn_task_mid').length;
-  const sig=JSON.stringify([tasks.map(k=>[k.id,k.title,k.reward,k.currency,k.cover,reqs[k.id]]),lang,S.i18nCcp,midN,S.sponsors,S.sponsorEveryTasks,me.country,tShown]);
+  const vis=tasks.filter(k=>reqs[k.id]!=='approved'); /* a completed task never shows again */
+  const sig=JSON.stringify([vis.map(k=>[k.id,k.title,k.reward,k.currency,k.cover,reqs[k.id]]),lang,S.i18nCcp,midN,S.sponsors,appr.length,S.sponsorEveryTasks,me.country,tShown]);
   if(sig===taskSig)return;taskSig=sig;
-  if(!tasks.length){g.innerHTML=`<div class="col-span-2 mut text-center py-10">${esc(t('noTasks'))}</div>`;$('#tMore').classList.add('hidden');return}
+  if(!vis.length){g.innerHTML=`<div class="col-span-2 mut text-center py-10">${esc(t('noTasks'))}</div>`;$('#tMore').classList.add('hidden');return}
   const every=4,tn=Math.max(2,Number(S.sponsorEveryTasks)||5);let out='';
-  tasks.slice(0,tShown).forEach((k,i)=>{out+=taskCard(k);
+  vis.slice(0,tShown).forEach((k,i)=>{out+=taskCard(k);
     if((i+1)%tn===0){const s=spPick('task',Math.floor(i/tn));if(s)out+=`<div class="col-span-2">${spCard(s)}</div>`} /* sponsor after every N tasks */
     if(midN&&(i+1)%every===0)out+=`<div class="col-span-2" data-adm="bn_task_mid" data-i="${Math.floor(i/every)}"></div>`});
   g.innerHTML=out;if(tab==='task')mountEmpty('#taskGrid [data-adm]');
-  const tm=$('#tMore');tm.classList.toggle('hidden',tasks.length<=tShown);tm.textContent=t('loadMore')+' ('+(tasks.length-tShown)+')';
+  const tm=$('#tMore');tm.classList.toggle('hidden',vis.length<=tShown);tm.textContent=t('loadMore')+' ('+(vis.length-tShown)+')';
 }
 let curTask=null,tIv=null;
 const tKey=id=>`lm_task_${uid}_${id}`;
@@ -821,6 +854,7 @@ function renderTaskModal(){
   else if(!at){o.disabled=false;o.textContent='🔗 '+t('openLink');p.disabled=true;p.textContent=t('proofSubmit');n.textContent=t('openFirst')}
   else if(el<N){o.disabled=false;o.textContent='⏳ '+t('waitTimer')+' '+Math.ceil(N-el)+'s';p.disabled=true;p.textContent=t('proofSubmit');n.textContent=t('openFirst')}
   else{o.disabled=true;o.textContent=t('linkLocked');p.disabled=false;p.textContent='📤 '+t('proofSubmit');n.textContent=''}
+  if(k.verify&&k.verify.type&&!st){p.disabled=false;p.textContent='✅ Verify (I did it)';n.textContent='Do the task, then tap Verify. Telegram login is required.'}
 }
 function openTask(id){curTask=tasks.find(x=>x.id===id);if(!curTask)return;renderTaskModal();openM('mTask');clearInterval(tIv);tIv=setInterval(renderTaskModal,1000)}
 function taskOpen(){
@@ -828,8 +862,18 @@ function taskOpen(){
   if(!localStorage.getItem(tKey(k.id)))localStorage.setItem(tKey(k.id),Date.now());
   openExternal(k.link);renderTaskModal();
 }
+async function taskVerify(k){
+  if(!WORKER_URL)return toast('Verification server is not set up');
+  const b=$('#tProof');b.disabled=true;
+  try{
+    const idt=await auth.currentUser.getIdToken();
+    const r=await fetch(WORKER_URL+'/task/verify',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+idt},body:JSON.stringify({taskId:k.id})});
+    const j=await r.json();
+    if(j.ok){toast('✅ Done! +'+fmt(j.reward,6)+' '+j.currency);A.closeTask()}else toast(j.error||'Could not verify')
+  }catch(x){toast(String(x.message||x))}
+  b.disabled=false}
 async function taskProof(){
-  const k=curTask;if(!k||reqs[k.id])return;
+  const k=curTask;if(!k||reqs[k.id])return;if(k.verify&&k.verify.type)return taskVerify(k);
   const rid=uid+'_'+k.id;
   try{
     await setDoc(doc(db,'task_requests',rid),{uid,taskId:k.id,taskTitle:k.title,email:me.email,name:me.name,status:'pending',createdAt:serverTimestamp()});
@@ -861,7 +905,7 @@ function refLink(){
 function renderProfile(){
   const av=me.photo&&/^https:\/\//.test(me.photo)?`<img src="${esc(me.photo)}" class="w-20 h-20 rounded-full object-cover mx-auto" alt="" referrerpolicy="no-referrer">`:`<div class="logo !w-20 !h-20 !rounded-full !text-3xl">${esc((me.name||'?')[0].toUpperCase())}</div>`;
   $('#pAvatar').innerHTML=av;$('#pName').textContent=me.name;$('#pEmail').textContent=me.email;$('#pCountry').textContent=flag(me.country)+' '+me.country;
-  $('#pRef').value=refLink();$('#pRef').placeholder='Admin: set the Telegram bot username in Settings';
+  $('#advBtn').classList.toggle('hidden',!me.canAdvertise);$('#crBtn').classList.toggle('hidden',!me.canCreate);$('#pRef').value=refLink();$('#pRef').placeholder='Admin: set the Telegram bot username in Settings';
   $('#sUSD').textContent=fmt(me.balanceUSD,4);$('#sLM').textContent=fmt(me.balanceLM,8);$('#sTasks').textContent=me.tasksDone||0;$('#sMined').textContent=fmt(me.minedLM,8);
   $('#sLMval').textContent='≈ $'+fmt(me.balanceLM*S.lmRateUSD,4)+' · ৳'+fmt(me.balanceLM*S.lmRateUSD*S.bdtPerUSD,2);
   $('#pRefEarn').textContent=refPct()>0?(t('refEarned')+' ('+refPct()+'%): '+fmt(me.refEarnedLM,8)+' LM'+(me.refEarnedUSD?' · $'+fmt(me.refEarnedUSD,4):'')):'';
@@ -873,6 +917,109 @@ function renderProfile(){
 function renderWds(){
   const e=$('#wdList');if(!e)return;
   e.innerHTML=wds.length?wds.map(w=>`<div class="card2 p-3 flex items-center justify-between"><div><div class="font-semibold">$${fmt(w.amountUSD,4)} · ${esc(w.methodName||w.method)}</div><div class="text-xs mut">${w.createdAt?new Date(w.createdAt.seconds*1000).toLocaleString():''}</div></div><span class="badge b-${esc(w.status)}">${esc(w.status)}</span></div>`).join(''):`<div class="mut text-center">${esc(t('noHistory'))}</div>`;
+}
+
+/* ---- AD MANAGER (only for users the admin enabled: me.canAdvertise) ---- */
+const ytIdOf=x=>{const m=String(x).match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);return m?m[1]:/^[\w-]{11}$/.test(x)?x:null};
+const AD_PLACES=[['video_grid','Video list'],['video_player','Under video'],['task','Task list'],['mine','Mine'],['community','Community'],['profile','Profile']];
+let adEdit=null,adPriv={};
+async function loadPriv(){ /* payment details are in a private document only the advertiser can read */
+  await Promise.all(camps.map(async c=>{try{const s=await getDoc(doc(db,'ad_campaigns',c.id,'private','pay'));adPriv[c.id]=s.exists()?s.data():{}}catch{adPriv[c.id]=adPriv[c.id]||{}}}));
+  if(!$('#mAds').classList.contains('hidden')&&!adEdit)renderAds()}
+const adPrice=()=>me.country==='BD'?{cur:'BDT',p:Number(S.adPriceBDT)||0}:{cur:'USD',p:Number(S.adPriceUSD)||0};
+const adPayList=()=>(S.adPay||[]).filter(m=>m.scope==='ALL'||(m.scope==='BD'&&me.country==='BD')||(m.scope==='INTL'&&me.country!=='BD'));
+function afCalc(){
+  const{cur,p}=adPrice(),d=Math.floor(Number(($('#af_days')||{}).value)||0),pm=adPayList()[Number(($('#af_pay')||{}).value)],tot=Math.round(d*p*100)/100;
+  const el=$('#af_total');if(el)el.textContent=cur+' '+fmt(tot,2)+'  ('+d+' × '+fmt(p,2)+')';
+  const pi=$('#af_payinfo');if(pi)pi.textContent=pm?('Send '+cur+' '+fmt(tot,2)+' to '+pm.account+(pm.note?' — '+pm.note:'')+', then enter your TrxID below.'):''}
+document.addEventListener('input',e=>{if(e.target.id==='af_days')afCalc()});
+document.addEventListener('change',e=>{if(e.target.id==='af_pay')afCalc()});
+function renderAds(){
+  const{cur,p}=adPrice(),pays=adPayList(),now=Date.now(),rm=(Number(S.adRenewDays)||5)*864e5,x=(adEdit&&camps.find(c=>c.id===adEdit))||{};
+  const badge=st=>`<span class="badge b-${st==='approved'?'approved':(st==='rejected'||st==='expired'||st==='stopped')?'rejected':'pending'}">${st==='pending'?'in review':st}</span>`;
+  const rows=camps.slice().sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(c=>{
+    const pv=adPriv[c.id]||{},exp=c.status==='approved'&&c.endAt&&c.endAt<now,st=exp?'expired':c.status,left=(c.endAt||0)-now,rp=pv.renew&&pv.renew.status==='pending',ends=c.endAt?new Date(c.endAt).toLocaleDateString():'';
+    return `<div class="card2 p-3 mt-2"><div class="flex justify-between gap-2"><b class="text-sm">${esc(c.title)}</b>${badge(st)}</div>
+      <div class="text-xs mut mt-1">👆 ${c.clicks||0} clicks${ends?' · ends '+ends:''} · ${c.days} days · ${esc(pv.currency||'')} ${fmt(pv.total||0,2)}</div>
+      ${c.status==='rejected'?`<div class="text-xs mt-1" style="color:#f87171">Rejected: ${esc(c.note||'please fix and resubmit')}</div><button class="btn btn-ghost !py-1 mt-2 text-sm" data-act="adEditC" data-id="${c.id}">Edit &amp; resubmit</button>`:''}
+      ${c.status==='pending'?'<div class="text-xs mt-1 mut">Waiting for admin review…</div>':''}
+      ${rp?'<div class="text-xs mt-1" style="color:#fbbf24">Renewal waiting for review…</div>':''}
+      ${c.status==='approved'&&!exp&&!rp&&left<=rm?`<div class="mt-2 text-xs" style="color:#fbbf24">⏰ Ends soon. Add days to keep it running:</div><div class="grid grid-cols-3 gap-2 mt-1"><input id="rn_d_${c.id}" class="inp !py-2" type="number" min="1" placeholder="days"><select id="rn_m_${c.id}" class="inp !py-2">${pays.map((m,i)=>`<option value="${i}">${esc(m.name)}</option>`).join('')}</select><input id="rn_t_${c.id}" class="inp !py-2" placeholder="TrxID"></div><button class="btn btn-green w-full mt-2 text-sm" data-act="adRenew" data-id="${c.id}">Pay &amp; renew</button>`:''}</div>`}).join('');
+  const pl=x.places||['video_grid','task','mine','community'];
+  $('#adsBody').innerHTML=`${rows||'<p class="mut text-sm">No ads yet.</p>'}
+  <div class="card2 p-3 mt-4"><div class="font-bold">${adEdit?'Edit & resubmit':'New ad'}</div>
+   <label class="lbl">Title</label><input id="af_title" class="inp" maxlength="60" value="${esc(x.title||'')}">
+   <label class="lbl">Short text (optional)</label><input id="af_text" class="inp" maxlength="120" value="${esc(x.text||'')}">
+   <div class="grid grid-cols-2 gap-2"><div><label class="lbl">Type</label><select id="af_type" class="inp"><option value="image" ${x.type!=='video'?'selected':''}>Image link</option><option value="video" ${x.type==='video'?'selected':''}>YouTube video</option></select></div><div><label class="lbl">Button text</label><input id="af_btn" class="inp" maxlength="20" value="${esc(x.btn||'Open')}"></div></div>
+   <label class="lbl">Image link (https) or YouTube URL</label><input id="af_media" class="inp" value="${esc(x.media||'')}">
+   <label class="lbl">Click link (https)</label><input id="af_link" class="inp" value="${esc(x.link||'')}">
+   <label class="lbl">Show on</label><div class="flex flex-wrap gap-3 text-sm">${AD_PLACES.map(([k,l])=>`<label><input type="checkbox" class="af_pl" value="${k}" ${pl.includes(k)?'checked':''}> ${l}</label>`).join('')}</div>
+   <div class="grid grid-cols-2 gap-2"><div><label class="lbl">Audience</label><select id="af_aud" class="inp"><option value="global">Global</option><option value="countries" ${x.audience==='countries'?'selected':''}>Selected countries</option></select></div><div><label class="lbl">Country codes (BD,IN)</label><input id="af_cc" class="inp" value="${esc(x.countries||'')}"></div></div>
+   <div class="grid grid-cols-2 gap-2"><div><label class="lbl">Days (${Number(S.adMinDays)||1}-${Number(S.adMaxDays)||30})</label><input id="af_days" class="inp" type="number" min="1" value="${x.days||7}"></div><div><label class="lbl">Price per day</label><div class="inp">${cur} ${fmt(p,2)}</div></div></div>
+   <div class="card2 p-3 mt-3"><div class="text-xs mut">Total to pay</div><div id="af_total" class="text-xl font-extrabold"></div></div>
+   <label class="lbl">Payment method</label>${pays.length?`<select id="af_pay" class="inp">${pays.map((m,i)=>`<option value="${i}">${esc(m.name)}</option>`).join('')}</select>`:'<p class="text-xs" style="color:#f87171">No payment method for your country yet. Contact support.</p>'}
+   <div id="af_payinfo" class="text-xs mt-2" style="color:#fbbf24"></div>
+   <label class="lbl">Your TrxID / sender number</label><input id="af_trx" class="inp" value="${esc((adPriv[x.id]||{}).trx||'')}">
+   <button class="btn btn-pri w-full mt-3" data-act="adSubmit">${adEdit?'Resubmit for review':'Submit for review'}</button>${adEdit?'<button class="btn btn-ghost w-full mt-2" data-act="adNew">Cancel edit</button>':''}</div>`;
+  afCalc()}
+async function adSubmit(){
+  const g=id=>($('#'+id).value||'').trim(),type=g('af_type'),media=g('af_media'),link=g('af_link'),days=Math.floor(Number(g('af_days'))||0),minD=Number(S.adMinDays)||1,maxD=Number(S.adMaxDays)||30;
+  const yid=type==='video'?ytIdOf(media):null,places=[...document.querySelectorAll('.af_pl:checked')].map(i=>i.value),pm=adPayList()[Number(($('#af_pay')||{}).value)],{cur,p}=adPrice();
+  if(g('af_title').length<3)return toast('Title is too short');
+  if(type==='video'?!yid:!/^https:\/\//i.test(media))return toast(type==='video'?'A valid YouTube URL is needed':'Image must be a direct https link');
+  if(!/^https:\/\//i.test(link))return toast('Click link must start with https://');
+  if(!places.length)return toast('Choose where to show the ad');
+  if(days<minD||days>maxD)return toast('Days must be '+minD+' to '+maxD);
+  if(!pm)return toast('Choose a payment method');
+  if(g('af_trx').length<4)return toast('Enter your payment TrxID / sender number');
+  const total=Math.round(days*p*100)/100;
+  const pub={uid,title:g('af_title'),text:g('af_text'),btn:g('af_btn')||'Open',type,media:type==='video'?'https://youtu.be/'+yid:media,ytId:yid||'',link,places,audience:g('af_aud'),countries:g('af_cc').toUpperCase().replace(/[^A-Z,\s]/g,'').trim(),days,status:'pending',note:''};
+  const priv={uid,email:me.email,name:me.name,payMethod:pm.name,trx:g('af_trx'),total,currency:cur,pricePerDay:p,renew:null};
+  try{
+    const ref=adEdit?doc(db,'ad_campaigns',adEdit):doc(collection(db,'ad_campaigns')),bt=writeBatch(db);
+    if(adEdit)bt.update(ref,pub);else bt.set(ref,{...pub,clicks:0,createdAt:serverTimestamp()});
+    bt.set(doc(ref,'private','pay'),priv);
+    await bt.commit();adPriv[ref.id]=priv;adEdit=null;toast('Sent for review');renderAds();
+  }catch(x){toast(friendly(x))}
+}
+async function adRenew(id){
+  const pays=adPayList(),d=Math.floor(Number(($('#rn_d_'+id)||{}).value)||0),pm=pays[Number(($('#rn_m_'+id)||{}).value)],trx=(($('#rn_t_'+id)||{}).value||'').trim(),{cur,p}=adPrice();
+  if(d<1||d>(Number(S.adMaxDays)||30))return toast('Enter the days to add');
+  if(!pm)return toast('Choose a payment method');
+  if(trx.length<4)return toast('Enter your TrxID');
+  try{const rn={days:d,total:Math.round(d*p*100)/100,currency:cur,payMethod:pm.name,trx,status:'pending'};await updateDoc(doc(db,'ad_campaigns',id,'private','pay'),{renew:rn});adPriv[id]={...(adPriv[id]||{}),renew:rn};toast('Renewal sent for review');renderAds()}catch(x){toast(friendly(x))}
+}
+
+/* ---- CREATOR (only for users the admin enabled: me.canCreate) ---- */
+function renderCreator(){
+  const maxD=Number(S.creatorMaxDays)||30,rv=Number(S.creatorViewerRewardLM)||0,re=Number(S.creatorEarnPerView)||0,now=Date.now(),d0=new Date();
+  const todayId=uid+'_'+d0.getUTCFullYear()+'_'+(d0.getUTCMonth()+1)+'_'+d0.getUTCDate(),posted=myVids.some(v=>v.id===todayId);
+  const sec=myVids.reduce((a,v)=>a+(v.watchSec||0),0),views=myVids.reduce((a,v)=>a+(v.views||0),0),pend=myVids.reduce((a,v)=>a+Math.max(0,(v.views||0)-(v.creditedViews||0))*(Number(v.creatorRate)||0),0);
+  const list=myVids.slice().sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(v=>{
+    const exp=v.expireAt&&v.expireAt<now,st=exp?'expired':v.active?'active':'stopped';
+    return `<div class="card2 p-3 mt-2"><div class="flex justify-between gap-2"><b class="text-sm">${esc(v.title)}</b><span class="badge ${st==='active'?'b-approved':'b-rejected'}">${st}</span></div>
+    <div class="text-xs mut mt-1">👁 ${v.views||0} views · ⏱ ${fmt((v.watchSec||0)/60,1)} min watched · earned ${fmt((v.views||0)*(Number(v.creatorRate)||0),6)} LM${v.expireAt?' · ends '+new Date(v.expireAt).toLocaleDateString():''}</div>
+    ${st==='active'?`<button class="btn btn-ghost !py-1 mt-2 text-sm" data-act="crStop" data-id="${v.id}">Stop video</button>`:''}</div>`}).join('');
+  $('#crBody').innerHTML=`<div class="grid grid-cols-2 gap-2"><div class="card2 p-3"><div class="text-xs mut">Balance</div><div class="font-extrabold">${fmt(me.balanceLM,6)} LM</div></div><div class="card2 p-3"><div class="text-xs mut">Videos</div><div class="font-extrabold">${myVids.length}</div></div><div class="card2 p-3"><div class="text-xs mut">Total watch time</div><div class="font-extrabold">${fmt(sec/3600,2)} h</div></div><div class="card2 p-3"><div class="text-xs mut">Total views</div><div class="font-extrabold">${views}</div></div></div>
+  <div class="card2 p-3 mt-2 flex items-center justify-between"><div><div class="text-xs mut">Pending earnings</div><div class="font-extrabold">${fmt(pend,6)} LM</div></div><button class="btn btn-green text-sm" data-act="crCollect" ${pend>0?'':'disabled'}>Collect</button></div>
+  ${list||'<p class="mut text-sm mt-3">No videos yet.</p>'}
+  <div class="card2 p-3 mt-4"><div class="font-bold">Post a video</div><div class="text-xs mut mt-1">1 post per day. Viewers earn ${fmt(rv,6)} LM, you earn ${fmt(re,6)} LM per view.</div>
+   <label class="lbl">YouTube URL</label><input id="cr_url" class="inp">
+   <label class="lbl">Title</label><input id="cr_title" class="inp" maxlength="80">
+   <div class="grid grid-cols-2 gap-2"><div><label class="lbl">Duration (seconds)</label><input id="cr_dur" class="inp" type="number" min="10"></div><div><label class="lbl">Expires after (days, max ${maxD})</label><input id="cr_days" class="inp" type="number" min="1" max="${maxD}" value="${Math.min(7,maxD)}"></div></div>
+   <button class="btn btn-pri w-full mt-3" data-act="crPost" ${posted?'disabled':''}>${posted?'Already posted today':'Post video'}</button></div>`}
+async function crPost(){
+  const g=id=>($('#'+id).value||'').trim(),yid=ytIdOf(g('cr_url')),dur=Math.floor(Number(g('cr_dur'))||0),days=Math.floor(Number(g('cr_days'))||0),maxD=Number(S.creatorMaxDays)||30,maxS=Number(S.creatorMaxDuration)||3600;
+  if(!yid)return toast('A valid YouTube URL is needed');if(g('cr_title').length<3)return toast('Title is too short');
+  if(dur<10||dur>maxS)return toast('Duration must be 10 to '+maxS+' seconds');
+  if(days<1||days>maxD)return toast('Expire must be 1 to '+maxD+' days');
+  const d=new Date(),id=uid+'_'+d.getUTCFullYear()+'_'+(d.getUTCMonth()+1)+'_'+d.getUTCDate();
+  try{await setDoc(doc(db,'videos',id),{ytUrl:'https://youtu.be/'+yid,ytId:yid,title:g('cr_title'),category:'Creator',duration:dur,reward:Number(S.creatorViewerRewardLM)||0,creatorRate:Number(S.creatorEarnPerView)||0,creatorUid:uid,creatorName:me.name,active:true,expireAt:Date.now()+days*864e5,views:0,watchSec:0,creditedViews:0,createdAt:serverTimestamp()});toast('Posted!')}
+  catch(x){toast(x.code==='permission-denied'?'Not allowed (1 post per day, or settings changed)':friendly(x))}
+}
+async function crCollect(){
+  if(!WORKER_URL)return toast('Server is not set up');
+  try{const idt=await auth.currentUser.getIdToken();const r=await fetch(WORKER_URL+'/creator/collect',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+idt},body:'{}'});const j=await r.json();toast(j.ok?(j.amount>0?'+'+fmt(j.amount,6)+' LM added':'Nothing to collect'):(j.error||'Failed'))}catch(x){toast(String(x.message||x))}
 }
 
 /* ---- exchange ---- */
@@ -937,7 +1084,9 @@ const A={
   openExchange,doExchange,xMax:()=>{$('#xAmt').value=fmt(me.balanceLM,8);calcExch()},
   openWithdraw,doWithdraw,closeAll,sponsor:d=>openExternal(d.url),
   vCat:d=>{vCat=d.c;vShown=PAGE_V;renderVideos()},vMore:()=>{vShown+=PAGE_V;renderVideos()},tMore:()=>{tShown+=PAGE_T;renderTasks()},
-  spClick:d=>{const s=(S.sponsors||[]).find(x=>x.id===d.sid);if(s)openExternal(s.link)},
+  spClick:d=>{const s=allSp().find(x=>x.id===d.sid);if(s){campClick(s);openExternal(s.link)}},
+  openCr:()=>{renderCreator();openM('mCr')},crPost,crCollect,crStop:d=>updateDoc(doc(db,'videos',d.id),{active:false}).catch(x=>toast(friendly(x))),
+  openAds:()=>{adEdit=null;renderAds();openM('mAds')},adSubmit,adNew:()=>{adEdit=null;renderAds()},adEditC:d=>{adEdit=d.id;renderAds()},adRenew:d=>adRenew(d.id),
   spMute:()=>{const p=spYT;if(!p)return;try{if(p.isMuted()){p.unMute();p.setVolume(100);spUserMuted=false}else{p.mute();spUserMuted=true}spBtn()}catch{}}
 };
 document.addEventListener('click',e=>{
