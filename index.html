@@ -66,51 +66,20 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
 <div id="toast" class="hidden"></div>
 <div id="splash" class="min-h-screen flex items-center justify-center"><div class="spin"></div></div>
 
-<!-- AUTH -->
+<!-- LOGIN (Telegram only) -->
 <div id="auth" class="hidden min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
   <div class="glow"></div>
-  <div class="w-full max-w-md card p-6 relative">
-    <div class="text-center mb-5"><div class="logo">LM</div><h1 class="text-2xl font-extrabold mt-3">LM Coin</h1><p class="text-sm mut" data-i18n="tagline"></p></div>
-    <div class="flex bg-black/30 rounded-xl p-1 mb-3">
-      <button class="seg on" id="tabLogin" data-act="authTab" data-t="login" data-i18n="login"></button>
-      <button class="seg" id="tabReg" data-act="authTab" data-t="reg" data-i18n="register"></button>
-    </div>
-    <form id="fLogin" autocomplete="on">
-      <label class="lbl" data-i18n="email"></label><input class="inp" id="lEmail" type="email" required autocomplete="email">
-      <label class="lbl" data-i18n="password"></label><input class="inp" id="lPass" type="password" required autocomplete="current-password">
-      <button class="btn btn-pri w-full mt-4" type="submit" data-i18n="signIn"></button>
-      <button type="button" class="w-full text-sm mut mt-3 underline" data-act="forgot" data-i18n="forgot"></button>
-    </form>
-    <form id="fReg" class="hidden">
-      <label class="lbl" data-i18n="name"></label><input class="inp" id="rName" required minlength="2" maxlength="40" autocomplete="name">
-      <label class="lbl" data-i18n="email"></label><input class="inp" id="rEmail" type="email" required autocomplete="email">
-      <label class="lbl" data-i18n="password"></label><input class="inp" id="rPass" type="password" required minlength="6" autocomplete="new-password">
-      <label class="lbl" data-i18n="country"></label><select class="inp" id="rCountry"></select>
-      <label class="lbl" data-i18n="refCode"></label><input class="inp" id="rRef" maxlength="12" placeholder="XXXXXXXX" style="text-transform:uppercase">
-      <button class="btn btn-pri w-full mt-4" type="submit" data-i18n="createAccount"></button>
-    </form>
-    <div class="gbit flex items-center gap-3 my-4 text-xs mut"><div class="flex-1" style="height:1px;background:var(--line)"></div><span data-i18n="or"></span><div class="flex-1" style="height:1px;background:var(--line)"></div></div>
-    <button type="button" class="gbit btn btn-ghost w-full" data-act="google">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
-      <span data-i18n="google"></span>
-    </button>
+  <div class="w-full max-w-md card p-6 relative text-center">
+    <div class="logo">LM</div><h1 class="text-2xl font-extrabold mt-3">LM Coin</h1><p class="text-sm mut" data-i18n="tagline"></p>
+    <p class="mt-5 text-sm">🔐 You are signed in automatically with your Telegram account. Please open this app from our Telegram bot.</p>
+    <a id="tgOpen" class="btn btn-pri w-full mt-4 hidden" href="#" target="_blank" rel="noopener">✈️ Open in Telegram</a>
+    <button class="btn btn-ghost w-full mt-3" data-act="retry">↻ Try again</button>
     <p id="authErr" class="text-red-400 text-sm mt-3 hidden"></p>
     <button class="btn btn-ghost w-full mt-4 text-sm" data-act="lang"><span class="langName"></span></button>
   </div>
 </div>
 
-<!-- COMPLETE PROFILE -->
-<div id="complete" class="hidden min-h-screen flex items-center justify-center p-4">
-  <div class="w-full max-w-md card p-6">
-    <h2 class="text-xl font-extrabold" data-i18n="completeTitle"></h2>
-    <p class="mut text-sm mt-1" id="cWho"></p>
-    <label class="lbl" data-i18n="country"></label><select class="inp" id="cCountry"></select>
-    <label class="lbl" data-i18n="refCode"></label><input class="inp" id="cRef" maxlength="12" placeholder="XXXXXXXX" style="text-transform:uppercase">
-    <button id="cBtn" class="btn btn-pri w-full mt-4" data-act="completeProfile" data-i18n="continue"></button>
-    <p id="cErr" class="text-red-400 text-sm mt-3 hidden"></p>
-    <button class="btn btn-ghost w-full mt-3" data-act="logout" data-i18n="cancel"></button>
-  </div>
-</div>
+<div id="complete" class="hidden"></div>
 
 <!-- BANNED -->
 <div id="banned" class="hidden min-h-screen flex flex-col items-center justify-center p-6 text-center">
@@ -132,6 +101,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
 
   <section id="tab-video" class="tab px-4 pt-2">
     <h2 class="text-lg font-bold mb-3" data-i18n="video"></h2>
+    <div id="dlVideo" class="mb-3 space-y-2"></div>
     <div id="vCats" class="flex gap-2 overflow-x-auto pb-2 mb-2 hidden" style="scrollbar-width:none"></div>
     <div id="videoGrid" class="grid grid-cols-2 gap-3"></div>
     <button id="vMore" class="btn btn-ghost w-full mt-3 hidden" data-act="vMore"></button>
@@ -166,6 +136,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
   <section id="tab-task" class="tab hidden px-4 pt-2">
     <h2 class="text-lg font-bold mb-3" data-i18n="task"></h2>
     <div id="adTaskTop" class="mb-3 hidden"></div>
+    <div id="dlTask" class="mb-3 space-y-2"></div>
     <div id="taskGrid" class="grid grid-cols-2 gap-3"></div>
     <button id="tMore" class="btn btn-ghost w-full mt-3 hidden" data-act="tMore"></button>
     <div id="adTaskNative" class="mt-3 hidden"></div>
@@ -175,6 +146,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
     <h2 class="text-lg font-bold mb-3" data-i18n="community"></h2>
     <div id="adStrip" class="mb-3"></div>
     <div id="spComm" class="mb-3 hidden"></div>
+    <div id="dlComm" class="mb-3 space-y-2"></div>
     <div id="commList" class="space-y-3"></div>
   </section>
 
@@ -204,6 +176,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
     </div>
     <button id="advBtn" class="btn btn-pri w-full mt-3 hidden" data-act="openAds">📢 Ad Manager</button>
     <button id="crBtn" class="btn btn-pri w-full mt-3 hidden" data-act="openCr">🎬 Creator</button>
+    <div id="dlProfile" class="mt-3 space-y-2"></div>
     <div id="spProfile" class="mt-3 hidden"></div>
     <div class="card p-4 mt-3"><div class="font-bold mb-2" data-i18n="history"></div><div id="wdList" class="space-y-2 text-sm"></div></div>
     <div id="supportBtns" class="grid gap-3 mt-3"></div>
@@ -230,6 +203,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
   </div>
   <p id="vNote" class="text-xs mut mt-2"></p>
   <button id="vClaim" class="btn btn-green w-full mt-3 hidden" data-act="videoClaim"></button>
+  <div id="vLinks" class="mt-3 space-y-2"></div>
   <div id="vSponsor" class="mt-3 hidden"></div>
   <div id="vBanner" class="mt-3 hidden"></div>
 </div></div>
@@ -277,7 +251,7 @@ body.ccp{font-family:'Noto Sans Chakma',Inter,system-ui,sans-serif}
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,signInWithCustomToken} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signOut,signInWithCustomToken} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc,addDoc,updateDoc,collection,query,where,onSnapshot,writeBatch,serverTimestamp,increment,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -337,15 +311,16 @@ const inTG=!!(TG&&TG.initData);
 /* platform: tg = Telegram bot mini app, apk = Android app (Capacitor / WebView wrapper), web = normal browser */
 const IS_APK=!inTG&&!!((window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform())||window.LMNative||/LMCoinApp/i.test(navigator.userAgent));
 const PLAT=inTG?'tg':IS_APK?'apk':'web';
-/* Cloudflare Worker address (see worker.js). Leave empty to keep the old email login only. Example: https://lmcoin-api.YOURNAME.workers.dev */
-const WORKER_URL='https://lmcoin.laxmimoychangma.workers.dev';
+/* Cloudflare Worker address (see worker.js). Leave empty to keep the old email login only. Example: https://lmcoin-api.pages.dev */
+const WORKER_URL='https://lmcoin-api.pages.dev'; /* <-- put your Worker URL here */
 if(TG){try{TG.ready();TG.expand()}catch{}}
-if(inTG||IS_APK)$$('.gbit').forEach(e=>e.classList.add('hidden')); /* Google blocks sign-in inside embedded WebViews */
+if(inTG)$$('[data-act="logout"]').forEach(e=>e.classList.add('hidden')); /* Telegram users stay signed in */
 function openExternal(url){
   url=String(url||'').trim();if(!/^https?:\/\//i.test(url))return;
   try{if(inTG){if(/^https?:\/\/(t|telegram)\.me\//i.test(url)&&TG.openTelegramLink)TG.openTelegramLink(url);else TG.openLink(url);return}}catch{}
   const w=window.open(url,'_blank','noopener');if(!w)location.href=url;
 }
+const who=()=>me.tgUsername?'@'+me.tgUsername:me.email;
 const refPct=()=>Math.max(0,Math.min(50,Number(S.refPercent)||0));
 const refCut=r=>{const p=refPct();return(me&&me.referredBy&&p>0)?Math.floor((Number(r)||0)*p/100*1e8)/1e8:0};
 
@@ -480,11 +455,11 @@ function showAd(place,cb){
   if(!list.length||Date.now()-lastFull<30000){cb&&cb();return}
   lastFull=Date.now();
   fullAd(rot('fs'+place,list),place,cb)}
-function mountSponsor(){
-  const el=$('#adSponsor');if(!el)return;
-  const l=(S.adSlots||[]).filter(n=>n&&n.enabled&&n.place==='sponsor'&&n.type==='link'&&isUrl(n.code)&&slotCountryOk(n));
-  el.innerHTML=l.map(n=>`<button class="btn btn-ghost w-full" data-act="sponsor" data-url="${esc(n.code)}">🎁 ${esc(n.name||t('sponsored'))} <span class="mut text-xs">· ${esc(t('sponsored'))}</span></button>`).join('');
-}
+/* Direct link buttons: the admin pastes a Monetag / Adsterra / AdsGram direct link, the user taps it (nothing opens by itself) */
+function mountLinks(el,places){
+  if(!el)return;
+  const l=(S.adSlots||[]).filter(n=>n&&n.enabled&&places.includes(n.place)&&n.type==='link'&&isUrl(n.code)&&slotCountryOk(n));
+  el.innerHTML=l.map(n=>`<button class="btn btn-ghost w-full" data-act="sponsor" data-url="${esc(n.code)}">🎁 ${esc(n.name||t('sponsored'))} <span class="mut text-xs">· ${esc(t('sponsored'))}</span></button>`).join('')}
 
 /* ====== SPONSOR ADS (own ads from admin, country targeted) ====== */
 let spN=0,spYT=null,spUserMuted=false,camps=[],appr=[],myVids=[];
@@ -553,10 +528,11 @@ function spCtl(on){
 
 function enterTab(n){
   const rl=Math.max(30,Number(S.bannerEverySec)||60);
-  if(n==='mine'){spMount($('#spMine'),'mine',spN++);mountAd($('#adMineTop'),'bn_mine',{reload:rl,h:100});mountSponsor();injectOnce('sb_mine')}
-  if(n==='task'){mountAd($('#adTaskTop'),'bn_task_top',{reload:rl,h:100});mountAd($('#adTaskNative'),'nat_task',{h:250});injectOnce('sb_task');mountEmpty('#taskGrid [data-adm]')}
-  if(n==='community'){spMount($('#spComm'),'community',spN++);mountStrip();injectOnce('sb_comm');mountEmpty('#commList [data-adm]')}
-  if(n==='profile'){spMount($('#spProfile'),'profile',spN++);mountAd($('#adProfile'),'bn_profile',{all:true,reload:rl,h:100})}
+  if(n==='mine'){spMount($('#spMine'),'mine',spN++);mountAd($('#adMineTop'),'bn_mine',{reload:rl,h:100});mountLinks($('#adSponsor'),['sponsor','dl_mine']);injectOnce('sb_mine')}
+  if(n==='video')mountLinks($('#dlVideo'),['dl_video']);
+  if(n==='task'){mountLinks($('#dlTask'),['dl_task']);mountAd($('#adTaskTop'),'bn_task_top',{reload:rl,h:100});mountAd($('#adTaskNative'),'nat_task',{h:250});injectOnce('sb_task');mountEmpty('#taskGrid [data-adm]')}
+  if(n==='community'){mountLinks($('#dlComm'),['dl_comm']);spMount($('#spComm'),'community',spN++);mountStrip();injectOnce('sb_comm');mountEmpty('#commList [data-adm]')}
+  if(n==='profile'){mountLinks($('#dlProfile'),['dl_profile']);spMount($('#spProfile'),'profile',spN++);mountAd($('#adProfile'),'bn_profile',{all:true,reload:rl,h:100})}
 }
 
 /* ====== language ====== */
@@ -567,98 +543,18 @@ function applyLang(){
   if(me)renderAll();
 }
 
-/* ====== countries ====== */
-const COUNTRIES=[['BD','Bangladesh'],['IN','India'],['PK','Pakistan'],['NP','Nepal'],['LK','Sri Lanka'],['MM','Myanmar'],['ID','Indonesia'],['MY','Malaysia'],['PH','Philippines'],['TH','Thailand'],['VN','Vietnam'],['SG','Singapore'],['CN','China'],['JP','Japan'],['KR','South Korea'],['AE','UAE'],['SA','Saudi Arabia'],['QA','Qatar'],['KW','Kuwait'],['OM','Oman'],['BH','Bahrain'],['TR','Turkey'],['EG','Egypt'],['NG','Nigeria'],['GH','Ghana'],['KE','Kenya'],['ZA','South Africa'],['US','United States'],['CA','Canada'],['MX','Mexico'],['BR','Brazil'],['GB','United Kingdom'],['DE','Germany'],['FR','France'],['IT','Italy'],['ES','Spain'],['NL','Netherlands'],['RU','Russia'],['UA','Ukraine'],['AU','Australia'],['NZ','New Zealand'],['XX','Other']];
-const countryOpts=COUNTRIES.map(([c,n])=>`<option value="${c}">${flag(c)} ${c} — ${n}</option>`).join('');
-$('#rCountry').innerHTML=countryOpts;$('#cCountry').innerHTML=countryOpts;
-fetch('https://ipapi.co/json/').then(r=>r.json()).then(j=>{const c=(j.country_code||'').toUpperCase();if(COUNTRIES.some(x=>x[0]===c)){$('#rCountry').value=c;$('#cCountry').value=c}}).catch(()=>{});
-/* referral code comes from the Telegram start parameter (t.me/BOT?startapp=CODE) or from ?ref=CODE */
+/* referral code comes from the Telegram start parameter (t.me/BOT?startapp=CODE) */
 const tgStart=String((TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param)||new URLSearchParams(location.hash.slice(1)).get('tgWebAppStartParam')||'');
 const urlRef=(new URLSearchParams(location.search).get('ref')||tgStart.replace(/^ref_/i,'')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
 if(urlRef)localStorage.setItem('lm_ref',urlRef);
-$('#rRef').value=localStorage.getItem('lm_ref')||'';$('#cRef').value=localStorage.getItem('lm_ref')||'';
 
-/* ====== device limit ====== */
-function getUuid(){let u=localStorage.getItem('lm_uuid');if(!u){u='uuid_'+(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));localStorage.setItem('lm_uuid',u)}return u}
-async function fingerprint(){
-  let c='',gl='';
-  try{const cv=document.createElement('canvas'),g=cv.getContext('2d');g.textBaseline='top';g.font='14px Arial';g.fillText('LM♦Coin☺',2,2);c=cv.toDataURL()}catch{}
-  try{const g=document.createElement('canvas').getContext('webgl'),e=g.getExtension('WEBGL_debug_renderer_info');gl=g.getParameter(e.UNMASKED_RENDERER_WEBGL)}catch{}
-  const raw=[navigator.userAgent,screen.width,screen.height,screen.colorDepth,devicePixelRatio,navigator.language,Intl.DateTimeFormat().resolvedOptions().timeZone,navigator.hardwareConcurrency,navigator.maxTouchPoints,c,gl].join('|');
-  let hex='';
-  if(crypto.subtle){const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));hex=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('')}
-  else{let h=5381;for(const ch of raw)h=((h<<5)+h+ch.charCodeAt(0))>>>0;hex='x'+h.toString(16)}
-  return 'fp_'+hex;
-}
-const genCode=()=>Array.from({length:8},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
-async function checkDevice(){
-  const uuid=getUuid(),fp=await fingerprint();
-  const chk=[getDoc(doc(db,'devices',uuid))];if(S.deviceFingerprint)chk.push(getDoc(doc(db,'devices',fp)));
-  if((await Promise.all(chk)).some(s=>s.exists())||localStorage.getItem('lm_acct')){const e=new Error(t('deviceUsed'));e.deviceBlocked=true;throw e}
-  return{uuid,fp};
-}
-async function writeProfile(id,{name,email,country,ref,photo},uuid,fp){
-  let referredBy=null;
-  if(ref){const rs=await getDoc(doc(db,'refcodes',ref));if(rs.exists()&&rs.data().uid!==id)referredBy=rs.data().uid}
-  const code=genCode(),bt=writeBatch(db);
-  bt.set(doc(db,'users',id),{uid:id,name,email,country,refCode:code,referredBy,balanceLM:0,balanceUSD:0,earnedLM:0,earnedUSD:0,minedLM:0,tasksDone:0,miningStart:null,banned:false,photo:photo||'',deviceFp:fp,deviceUuid:uuid,createdAt:serverTimestamp()});
-  bt.set(doc(db,'refcodes',code),{uid:id});
-  bt.set(doc(db,'devices',uuid),{uid:id,at:serverTimestamp()});
-  if(S.deviceFingerprint)bt.set(doc(db,'devices',fp),{uid:id,at:serverTimestamp()});
-  await bt.commit();
-  localStorage.setItem('lm_acct',id);
-}
-
-/* ====== auth ====== */
+/* ====== login (Telegram only, the Worker creates the profile) ====== */
 function authErr(m){const e=$('#authErr');e.textContent=m||'';e.classList.toggle('hidden',!m)}
-function cErr(m){const e=$('#cErr');e.textContent=m||'';e.classList.toggle('hidden',!m)}
-$('#fLogin').addEventListener('submit',async e=>{e.preventDefault();authErr('');const b=e.submitter;b.disabled=true;
-  try{await signInWithEmailAndPassword(auth,$('#lEmail').value.trim(),$('#lPass').value)}catch(x){authErr(friendly(x))}b.disabled=false});
-$('#fReg').addEventListener('submit',async e=>{
-  e.preventDefault();authErr('');const b=e.submitter;b.disabled=true;
-  const name=$('#rName').value.trim(),email=$('#rEmail').value.trim().toLowerCase(),pw=$('#rPass').value,country=$('#rCountry').value,ref=$('#rRef').value.trim().toUpperCase();
-  try{
-    const{uuid,fp}=await checkDevice();
-    registering=true;
-    const cred=await createUserWithEmailAndPassword(auth,email,pw),id=cred.user.uid;
-    try{await writeProfile(id,{name,email,country,ref,photo:''},uuid,fp)}
-    catch(x){await cred.user.delete().catch(()=>{});throw x}
-    registering=false;startSession(auth.currentUser);
-  }catch(x){registering=false;authErr(friendly(x))}
-  b.disabled=false;
-});
-const gProvider=new GoogleAuthProvider();gProvider.setCustomParameters({prompt:'select_account'});
-async function googleLogin(){
-  authErr('');
-  try{await signInWithPopup(auth,gProvider)}
-  catch(x){
-    if(x.code==='auth/popup-closed-by-user'||x.code==='auth/cancelled-popup-request')return;
-    if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(x.code)){
-      try{await signInWithRedirect(auth,gProvider);return}catch(y){authErr(friendly(y));return}
-    }
-    authErr(friendly(x));
-  }
-}
-getRedirectResult(auth).catch(x=>authErr(friendly(x)));
-function showComplete(){
-  $('#auth').classList.add('hidden');$('#app').classList.add('hidden');$('#banned').classList.add('hidden');$('#complete').classList.remove('hidden');
-  $('#cWho').textContent=auth.currentUser?.email||'';
-}
-async function completeProfile(){
-  const u=auth.currentUser;if(!u)return;const b=$('#cBtn');b.disabled=true;cErr('');
-  try{
-    const{uuid,fp}=await checkDevice();
-    registering=true;
-    const name=((u.displayName||(u.email||'User').split('@')[0]).trim().slice(0,40))||'User';
-    await writeProfile(u.uid,{name,email:u.email,country:$('#cCountry').value,ref:$('#cRef').value.trim().toUpperCase(),photo:/^https:\/\//.test(u.photoURL||'')?u.photoURL:''},uuid,fp);
-    registering=false;startSession(u);
-  }catch(x){
-    registering=false;
-    if(x.deviceBlocked){await u.delete().catch(()=>{});await signOut(auth).catch(()=>{});authErr(x.message)}
-    else cErr(friendly(x));
-  }
-  b.disabled=false;
-}
+function tgLink(){
+  const bot=String(S.tgBot||'').trim().replace(/^@|^https?:\/\/t\.me\//i,'').replace(/\/.*$/,''),app=String(S.tgApp||'').trim().replace(/[^A-Za-z0-9_]/g,''),a=$('#tgOpen');
+  if(a){if(bot){a.href='https://t.me/'+bot+(app?'/'+app:'');a.classList.remove('hidden')}else a.classList.add('hidden')}
+  if(inTG&&!WORKER_URL)authErr('Login server is not set up yet. Please contact support.')}
+function showComplete(){$('#app').classList.add('hidden');$('#banned').classList.add('hidden');$('#auth').classList.remove('hidden');authErr('Your profile was not found. Close the app and open it again from Telegram.')}
 let tgTried=false;
 async function tgLogin(){
   try{
@@ -701,7 +597,7 @@ function startSession(u){
 onSnapshot(doc(db,'settings','main'),s=>{
   if(!s.exists())return;const d=s.data();
   S={...DEF,...d,links:{...d.links},adSlots:normAds(d),sponsors:Array.isArray(d.sponsors)?d.sponsors:[],i18nCcp:d.i18nCcp||{},payments:d.payments||DEF.payments};
-  applyLang();loadGlobalAds();
+  applyLang();loadGlobalAds();tgLink();
 },()=>{});
 
 /* ====== tabs / render ====== */
@@ -710,7 +606,7 @@ function switchTab(n){
   if(n==='mine')$('#mineDot').classList.add('hidden');
   clearAdTimers();enterTab(n);
 }
-function renderAll(){renderHeader();renderVideos();renderMine();renderTasks();renderCommunity();renderProfile();renderWds()}
+function renderAll(){mountLinks($('#dlVideo'),['dl_video']);renderHeader();renderVideos();renderMine();renderTasks();renderCommunity();renderProfile();renderWds()}
 function renderHeader(){$('#hBal').textContent=fmt(me.balanceLM,6)}
 
 let vidSig='',vCat='all',vShown=10,tShown=15;
@@ -778,11 +674,11 @@ function videoClaim(){
       return b};
     try{
       try{await mk(true).commit()}catch(x){if(cut>0)await mk(false).commit();else throw x}
-      $('#vNote').textContent=t('rewarded');c.classList.add('hidden');toast('+'+fmt(r,6)+' LM');
+      $('#vNote').textContent=t('rewarded');c.classList.add('hidden');toast('+'+fmt(r,6)+' LM');mountLinks($('#vLinks'),['dl_claim']);
     }catch(x){toast(friendly(x));c.disabled=false}
   });
 }
-function closeVideo(){clearInterval(vIv);clearInterval(bIv);spDestroy();try{yt&&yt.destroy()}catch{}yt=null;$('#ytWrap').innerHTML='<div id="ytBox"></div>';$('#vBanner').innerHTML='';$('#vBanner').classList.add('hidden');$('#vSponsor').innerHTML='';$('#vSponsor').classList.add('hidden');$('#vClaim').classList.add('hidden');$('#mVideo').classList.add('hidden')}
+function closeVideo(){clearInterval(vIv);clearInterval(bIv);spDestroy();try{yt&&yt.destroy()}catch{}yt=null;$('#ytWrap').innerHTML='<div id="ytBox"></div>';$('#vBanner').innerHTML='';$('#vBanner').classList.add('hidden');$('#vSponsor').innerHTML='';$('#vSponsor').classList.add('hidden');$('#vClaim').classList.add('hidden');$('#vLinks').innerHTML='';$('#mVideo').classList.add('hidden')}
 
 /* ---- mining ---- */
 function mineState(){
@@ -876,10 +772,10 @@ async function taskProof(){
   const k=curTask;if(!k||reqs[k.id])return;if(k.verify&&k.verify.type)return taskVerify(k);
   const rid=uid+'_'+k.id;
   try{
-    await setDoc(doc(db,'task_requests',rid),{uid,taskId:k.id,taskTitle:k.title,email:me.email,name:me.name,status:'pending',createdAt:serverTimestamp()});
+    await setDoc(doc(db,'task_requests',rid),{uid,taskId:k.id,taskTitle:k.title,email:who(),name:me.name,status:'pending',createdAt:serverTimestamp()});
     toast(t('proofSent'));
     const h=(S.proofTelegram||S.supportTelegram||'').replace(/^@|^https?:\/\/t\.me\//,'');
-    if(h)openExternal('https://t.me/'+encodeURIComponent(h)+'?text='+encodeURIComponent(`Task proof\nTask: ${k.title}\nEmail: ${me.email}\nRef: ${rid}`));
+    if(h)openExternal('https://t.me/'+encodeURIComponent(h)+'?text='+encodeURIComponent(`Task proof\nTask: ${k.title}\nUser: ${who()}\nRef: ${rid}`));
   }catch(x){toast(friendly(x))}
 }
 
@@ -904,7 +800,7 @@ function refLink(){
   return inTG?'':location.origin+location.pathname+'?ref='+me.refCode}
 function renderProfile(){
   const av=me.photo&&/^https:\/\//.test(me.photo)?`<img src="${esc(me.photo)}" class="w-20 h-20 rounded-full object-cover mx-auto" alt="" referrerpolicy="no-referrer">`:`<div class="logo !w-20 !h-20 !rounded-full !text-3xl">${esc((me.name||'?')[0].toUpperCase())}</div>`;
-  $('#pAvatar').innerHTML=av;$('#pName').textContent=me.name;$('#pEmail').textContent=me.email;$('#pCountry').textContent=flag(me.country)+' '+me.country;
+  $('#pAvatar').innerHTML=av;$('#pName').textContent=me.name;$('#pEmail').textContent=who();$('#pCountry').textContent=flag(me.country)+' '+me.country;
   $('#advBtn').classList.toggle('hidden',!me.canAdvertise);$('#crBtn').classList.toggle('hidden',!me.canCreate);$('#pRef').value=refLink();$('#pRef').placeholder='Admin: set the Telegram bot username in Settings';
   $('#sUSD').textContent=fmt(me.balanceUSD,4);$('#sLM').textContent=fmt(me.balanceLM,8);$('#sTasks').textContent=me.tasksDone||0;$('#sMined').textContent=fmt(me.minedLM,8);
   $('#sLMval').textContent='≈ $'+fmt(me.balanceLM*S.lmRateUSD,4)+' · ৳'+fmt(me.balanceLM*S.lmRateUSD*S.bdtPerUSD,2);
@@ -957,6 +853,7 @@ function renderAds(){
    <div class="grid grid-cols-2 gap-2"><div><label class="lbl">Audience</label><select id="af_aud" class="inp"><option value="global">Global</option><option value="countries" ${x.audience==='countries'?'selected':''}>Selected countries</option></select></div><div><label class="lbl">Country codes (BD,IN)</label><input id="af_cc" class="inp" value="${esc(x.countries||'')}"></div></div>
    <div class="grid grid-cols-2 gap-2"><div><label class="lbl">Days (${Number(S.adMinDays)||1}-${Number(S.adMaxDays)||30})</label><input id="af_days" class="inp" type="number" min="1" value="${x.days||7}"></div><div><label class="lbl">Price per day</label><div class="inp">${cur} ${fmt(p,2)}</div></div></div>
    <div class="card2 p-3 mt-3"><div class="text-xs mut">Total to pay</div><div id="af_total" class="text-xl font-extrabold"></div></div>
+   ${pays.length?`<div class="card2 p-3 mt-3"><div class="text-xs mut">Send the payment to (tap to copy)</div>${pays.map(m=>`<div class="flex justify-between items-center gap-2 mt-2"><div><b class="text-sm">${esc(m.name)}</b><div class="text-xs mut">${esc(m.note||'')}</div></div><button class="btn btn-ghost !py-1 !px-3 text-xs" data-act="copyTxt" data-v="${esc(m.account)}">${esc(m.account)} 📋</button></div>`).join('')}</div>`:''}
    <label class="lbl">Payment method</label>${pays.length?`<select id="af_pay" class="inp">${pays.map((m,i)=>`<option value="${i}">${esc(m.name)}</option>`).join('')}</select>`:'<p class="text-xs" style="color:#f87171">No payment method for your country yet. Contact support.</p>'}
    <div id="af_payinfo" class="text-xs mt-2" style="color:#fbbf24"></div>
    <label class="lbl">Your TrxID / sender number</label><input id="af_trx" class="inp" value="${esc((adPriv[x.id]||{}).trx||'')}">
@@ -974,7 +871,7 @@ async function adSubmit(){
   if(g('af_trx').length<4)return toast('Enter your payment TrxID / sender number');
   const total=Math.round(days*p*100)/100;
   const pub={uid,title:g('af_title'),text:g('af_text'),btn:g('af_btn')||'Open',type,media:type==='video'?'https://youtu.be/'+yid:media,ytId:yid||'',link,places,audience:g('af_aud'),countries:g('af_cc').toUpperCase().replace(/[^A-Z,\s]/g,'').trim(),days,status:'pending',note:''};
-  const priv={uid,email:me.email,name:me.name,payMethod:pm.name,trx:g('af_trx'),total,currency:cur,pricePerDay:p,renew:null};
+  const priv={uid,email:who(),name:me.name,payMethod:pm.name,trx:g('af_trx'),total,currency:cur,pricePerDay:p,renew:null};
   try{
     const ref=adEdit?doc(db,'ad_campaigns',adEdit):doc(collection(db,'ad_campaigns')),bt=writeBatch(db);
     if(adEdit)bt.update(ref,pub);else bt.set(ref,{...pub,clicks:0,createdAt:serverTimestamp()});
@@ -1062,7 +959,7 @@ async function doWithdraw(){
   if(amt>me.balanceUSD)return toast(t('insufficient'));
   try{
     const ref=doc(collection(db,'withdrawals')),bt=writeBatch(db);
-    bt.set(ref,{uid,email:me.email,name:me.name,country:me.country,method:key,methodName:m.name,account:acc,amountUSD:amt,status:'pending',createdAt:serverTimestamp()});
+    bt.set(ref,{uid,email:who(),tgId:me.tgId||'',name:me.name,country:me.country,method:key,methodName:m.name,account:acc,amountUSD:amt,status:'pending',createdAt:serverTimestamp()});
     bt.update(doc(db,'users',uid),{balanceUSD:increment(-amt),lastWithdrawalId:ref.id});
     await bt.commit();toast(t('wdSent'));closeAll();
   }catch(x){toast(friendly(x))}
@@ -1070,9 +967,7 @@ async function doWithdraw(){
 
 /* ====== actions ====== */
 const A={
-  authTab:d=>{const r=d.t==='reg';$('#fLogin').classList.toggle('hidden',r);$('#fReg').classList.toggle('hidden',!r);$('#tabLogin').classList.toggle('on',!r);$('#tabReg').classList.toggle('on',r);authErr('')},
-  forgot:async()=>{const e=$('#lEmail').value.trim();if(!e)return authErr(t('email'));try{await sendPasswordResetEmail(auth,e);toast('Reset email sent')}catch(x){authErr(friendly(x))}},
-  google:googleLogin,completeProfile,
+  retry:()=>{tgTried=false;authErr('');$('#splash').classList.remove('hidden');if(inTG&&WORKER_URL)tgLogin();else{$('#splash').classList.add('hidden');tgLink()}},
   lang:()=>{lang=lang==='ccp'?'en':'ccp';localStorage.setItem('lm_lang',lang);applyLang()},
   logout:()=>signOut(auth),
   tab:d=>switchTab(d.t),
@@ -1085,6 +980,7 @@ const A={
   openWithdraw,doWithdraw,closeAll,sponsor:d=>openExternal(d.url),
   vCat:d=>{vCat=d.c;vShown=PAGE_V;renderVideos()},vMore:()=>{vShown+=PAGE_V;renderVideos()},tMore:()=>{tShown+=PAGE_T;renderTasks()},
   spClick:d=>{const s=allSp().find(x=>x.id===d.sid);if(s){campClick(s);openExternal(s.link)}},
+  copyTxt:d=>{navigator.clipboard?.writeText(d.v);toast(t('copied'))},
   openCr:()=>{renderCreator();openM('mCr')},crPost,crCollect,crStop:d=>updateDoc(doc(db,'videos',d.id),{active:false}).catch(x=>toast(friendly(x))),
   openAds:()=>{adEdit=null;renderAds();openM('mAds')},adSubmit,adNew:()=>{adEdit=null;renderAds()},adEditC:d=>{adEdit=d.id;renderAds()},adRenew:d=>adRenew(d.id),
   spMute:()=>{const p=spYT;if(!p)return;try{if(p.isMuted()){p.unMute();p.setVolume(100);spUserMuted=false}else{p.mute();spUserMuted=true}spBtn()}catch{}}
@@ -1093,6 +989,63 @@ document.addEventListener('click',e=>{
   const a=e.target.closest('a[href]');
   if(a&&inTG&&/^https?:/i.test(a.href)){e.preventDefault();openExternal(a.href);return}
   const el=e.target.closest('[data-act]');if(!el)return;const f=A[el.dataset.act];if(f)f(el.dataset,el)});
+
+/* ===== SECURITY PATCH (paste this whole block in user.html, just ABOVE the last line "applyLang();") ===== */
+async function api(path,body){
+  const idt=await auth.currentUser.getIdToken();
+  const r=await fetch(WORKER_URL+path,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+idt},body:JSON.stringify(body||{})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||j.error)throw new Error(j.error||'Request failed');
+  return j}
+
+/* video: server starts a watch session, then pays on claim */
+A.play=d=>{api('/video/start',{id:d.id}).catch(()=>{});playVideo(d.id)};
+A.videoClaim=()=>{
+  const v=vs.v;if(!v||watched.has(v.id))return;const c=$('#vClaim');c.disabled=true;
+  showAd('int_claim',async()=>{
+    try{const j=await api('/video/claim',{id:v.id});$('#vNote').textContent=t('rewarded');c.classList.add('hidden');toast('+'+fmt(j.reward,6)+' LM');mountLinks($('#vLinks'),['dl_claim'])}
+    catch(x){toast(x.message);c.disabled=false}
+  })};
+
+/* mining */
+A.mineBtn=()=>{
+  const m=mineState();
+  if(m.s==='idle'){
+    try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch{}
+    showAd('int_mine_start',async()=>{try{await api('/mine/start')}catch(x){toast(x.message)}});
+  }else if(m.s==='ready'){
+    showAd('int_claim',async()=>{try{await api('/mine/claim');toast(t('claimed'))}catch(x){toast(x.message)}});
+  }};
+
+/* exchange */
+A.doExchange=async()=>{
+  const{a}=calcExch();
+  if(a<S.minExchangeLM)return toast(t('minLabel')+': '+fmt(S.minExchangeLM,8)+' LM');
+  if(a>me.balanceLM)return toast(t('insufficient'));
+  try{await api('/exchange',{amount:a});toast(t('exchanged'));closeAll()}catch(x){toast(x.message)}};
+
+/* withdraw */
+A.doWithdraw=async()=>{
+  const key=$('#wMethod').value,m=S.payments[key],acc=$('#wAcc').value.trim(),amt=Math.floor((Number($('#wAmt').value)||0)*1e6)/1e6;
+  if(acc.length<3)return toast(t('account'));
+  if(amt<m.minUSD)return toast(t('minimum')+': $'+fmt(m.minUSD,4));
+  if(amt>me.balanceUSD)return toast(t('insufficient'));
+  try{await api('/withdraw',{method:key,account:acc,amount:amt});toast(t('wdSent'));closeAll()}catch(x){toast(x.message)}};
+
+/* creator post */
+A.crPost=async()=>{
+  const g=id=>($('#'+id).value||'').trim(),yid=ytIdOf(g('cr_url')),dur=Math.floor(Number(g('cr_dur'))||0),days=Math.floor(Number(g('cr_days'))||0),maxD=Number(S.creatorMaxDays)||30,maxS=Number(S.creatorMaxDuration)||3600;
+  if(!yid)return toast('A valid YouTube URL is needed');if(g('cr_title').length<3)return toast('Title is too short');
+  if(dur<10||dur>maxS)return toast('Duration must be 10 to '+maxS+' seconds');
+  if(days<1||days>maxD)return toast('Expire must be 1 to '+maxD+' days');
+  try{await api('/creator/post',{url:g('cr_url'),title:g('cr_title'),duration:dur,days});toast('Posted!')}catch(x){toast(x.message)}};
+
+/* close modals: also stop the task timer (leak fix) */
+A.closeAll=()=>{clearInterval(tIv);closeAll()};
+
+/* referral count now comes from the profile (refCount), not from reading other users */
+setInterval(()=>{if(me){const e=$('#pRefCount');if(e)e.textContent=me.refCount||0}},1500);
+/* ===== END PATCH ===== */
 
 applyLang();
 </script>
